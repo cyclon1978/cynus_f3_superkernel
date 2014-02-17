@@ -2556,3 +2556,7 @@ CONFIG_LOCAL_WDT=y
 # Detect uncompressed kernel overwrite RAMDISK when bootup
 #
 CONFIG_RAMDISK_OFFSET=0x1100000
+
+# new in kernel 3.4.5
+CONFIG_DYNAMIC_PAGE_WRITEBACK=n
+CONFIG_DYNAMIC_FSYNC=n
