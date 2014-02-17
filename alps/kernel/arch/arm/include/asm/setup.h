@@ -158,17 +158,6 @@ struct tag_meta_com {
     u32 meta_com_id;  /* multiple meta need to know com port id */
 };
 
-
-/*device information data*/
-#define ATAG_DEVINFO_DATA 0x41000804
-#define ATAG_DEVINFO_DATA_SIZE 21
-
-struct tag_devinfo_data {
-    u32 devinfo_data[ATAG_DEVINFO_DATA_SIZE]; 	/* device information */
-    u32 devinfo_data_size;                      /* device information size */
-};
-
-
 struct tag {
 	struct tag_header hdr;
 	union {
@@ -191,9 +180,8 @@ struct tag {
 		 * DC21285 specific
 		 */
 		struct tag_memclk	memclk;
-        struct tag_boot         boot;
-        struct tag_meta_com     meta_com;
-        struct tag_devinfo_data devinfo_data;
+                struct tag_boot         boot;
+                struct tag_meta_com     meta_com;
 	} u;
 };
 

@@ -31,10 +31,6 @@ static char serial_number[SERIALNO_LEN];
 #define USB_UNIQUE_HEX_SERIAL  1  //add by ljx
 
 extern BOOTMODE get_boot_mode(void);
-extern u32 g_devinfo_data[];
-extern u32 g_devinfo_data_size;
-
-
 extern void adjust_kernel_cmd_line_setting_for_console(char*, char*);
 struct {
 	u32 base;
@@ -1073,23 +1069,6 @@ static int __init parse_tag_videofb_fixup(const struct tag *tags)
         use_bl_fb++;
 	return 0;
 }
-
-static int __init parse_tag_devinfo_data_fixup(const struct tag *tags)
-{
-    int i=0;
-    int size = tags->u.devinfo_data.devinfo_data_size;
-
-    for (i=0;i<size;i++){
-        g_devinfo_data[i] = tags->u.devinfo_data.devinfo_data[i];
-    }
-    /* print chip id for debugging purpose */
-    printk("tag_devinfo_data_rid, indx[%d]:0x%x\n", 12,g_devinfo_data[12]);
-    printk("tag_devinfo_data size:%d\n", size);
-    g_devinfo_data_size = size;
-	return 0;
-}
-
-
 void mt_fixup(struct tag *tags, char **cmdline, struct meminfo *mi)
 {
 #ifndef CONFIG_EARLY_LINUX_PORTING
@@ -1144,8 +1123,6 @@ void mt_fixup(struct tag *tags, char **cmdline, struct meminfo *mi)
             g_boot_mode = tags->u.boot.bootmode;
         } else if (tags->hdr.tag == ATAG_VIDEOLFB) {
             parse_tag_videofb_fixup(tags);
-        } else if (tags->hdr.tag == ATAG_DEVINFO_DATA){
-            parse_tag_devinfo_data_fixup(tags);
         }
         else if(tags->hdr.tag == ATAG_META_COM)
         {
@@ -1588,12 +1565,6 @@ __init int mt_board_init(void)
         return retval;
     }
 #endif
-#if defined(CONFIG_MTK_TOUCHPANEL) && (defined(TINNO_PROJECT_S9070))
-    retval = platform_device_register(&mtk_tpd_dev);
-    if (retval != 0) {
-        return retval;
-    }
-#endif
 
 #if 1
     retval = platform_device_register(&mt_SMI_dev);
@@ -1689,9 +1660,7 @@ __init int mt_board_init(void)
 		return retval;
 	}
 #endif
-
-
-#if defined(CONFIG_MTK_TOUCHPANEL) && (!defined(TINNO_PROJECT_S9070))
+#if defined(CONFIG_MTK_TOUCHPANEL)
     retval = platform_device_register(&mtk_tpd_dev);
     if (retval != 0) {
         return retval;

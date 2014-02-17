@@ -205,9 +205,9 @@ void mt_pmic_low_power_init(void)
         if ((DRV_Reg32(HW_RESV) & (0x1 << 23)) && ((DRV_Reg32(HW_RESV) & (0x1 << 20)) == 0))
         {
             upmu_buck_vosel_dvs_00(BUCK_VPROC, volt);
-            upmu_buck_vosel_dvs_01(BUCK_VPROC, 0x0F); // 1.075V DVS_VOL_01
-            upmu_buck_vosel_dvs_10(BUCK_VPROC, 0x13); // 1.175V DVS_VOL_10
-            upmu_buck_vosel_dvs_11(BUCK_VPROC, 0x17); // 1.275V DVS_VOL_11
+            upmu_buck_vosel_dvs_01(BUCK_VPROC, 0x0D); // 0x0F: 1.075V DVS_VOL_01
+            upmu_buck_vosel_dvs_10(BUCK_VPROC, 0x11); // 0x13: 1.175V DVS_VOL_10
+            upmu_buck_vosel_dvs_11(BUCK_VPROC, 0x15); // 0x17: 1.275V DVS_VOL_11
         }
         else
         {
@@ -216,23 +216,23 @@ void mt_pmic_low_power_init(void)
                 if ((DRV_Reg32(HW_RESV) & (0x1 << 17)) && ((DRV_Reg32(HW_RESV) & (0x1 << 16)) == 0))
                 {
                     upmu_buck_vosel_dvs_00(BUCK_VPROC, volt);
-                    upmu_buck_vosel_dvs_01(BUCK_VPROC, 0x0F); // 1.075V DVS_VOL_01
-                    upmu_buck_vosel_dvs_10(BUCK_VPROC, 0x13); // 1.175V DVS_VOL_10
-                    upmu_buck_vosel_dvs_11(BUCK_VPROC, 0x17); // 1.275V DVS_VOL_11
+                    upmu_buck_vosel_dvs_01(BUCK_VPROC, 0x0D); // 0x0F: 1.075V DVS_VOL_01
+                    upmu_buck_vosel_dvs_10(BUCK_VPROC, 0x11); // 0x13: 1.175V DVS_VOL_10
+                    upmu_buck_vosel_dvs_11(BUCK_VPROC, 0x15); // 0x17: 1.275V DVS_VOL_11
                 }
                 else
                 {
-                    upmu_buck_vosel_dvs_00(BUCK_VPROC, 0x08); // 0.900V DVS_VOL_00
-                    upmu_buck_vosel_dvs_01(BUCK_VPROC, 0x0F); // 1.075V DVS_VOL_01
-                    upmu_buck_vosel_dvs_10(BUCK_VPROC, 0x13); // 1.175V DVS_VOL_10
+                    upmu_buck_vosel_dvs_00(BUCK_VPROC, 0x07); // 0x08: 0.900V DVS_VOL_00
+                    upmu_buck_vosel_dvs_01(BUCK_VPROC, 0x0E); // 0x0F: 1.075V DVS_VOL_01
+                    upmu_buck_vosel_dvs_10(BUCK_VPROC, 0x12); // 0x13: 1.175V DVS_VOL_10
                     upmu_buck_vosel_dvs_11(BUCK_VPROC, volt);
                 }
             }
             else
             {
-                upmu_buck_vosel_dvs_00(BUCK_VPROC, 0x08); // 0.900V DVS_VOL_00
-                upmu_buck_vosel_dvs_01(BUCK_VPROC, 0x0F); // 1.075V DVS_VOL_01
-                upmu_buck_vosel_dvs_10(BUCK_VPROC, 0x13); // 1.175V DVS_VOL_10
+                upmu_buck_vosel_dvs_00(BUCK_VPROC, 0x07); // 0x08: 0.900V DVS_VOL_00
+                upmu_buck_vosel_dvs_01(BUCK_VPROC, 0x0E); // 0x0F: 1.075V DVS_VOL_01
+                upmu_buck_vosel_dvs_10(BUCK_VPROC, 0x12); // 0x13: 1.175V DVS_VOL_10
                 upmu_buck_vosel_dvs_11(BUCK_VPROC, volt);
             }
         }

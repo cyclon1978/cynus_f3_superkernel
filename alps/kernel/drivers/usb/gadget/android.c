@@ -76,13 +76,9 @@ static const char longname[] = "Gadget Android";
 #define PRODUCT_ID		0x0001
 
 /* Default manufacturer and product string , overridden by userspace */
-/*begin rong.wang modify for :usb name,DATE20121228*/
-#define MANUFACTURER_STRING ""
-#define PRODUCT_STRING "FLY IQ445"
+#define MANUFACTURER_STRING "MediaTek"
+#define PRODUCT_STRING "MT65xx Android Phone"
 
-//#define MANUFACTURER_STRING "MediaTek"
-//#define PRODUCT_STRING "MT65xx Android Phone"
-/*end rong.wang modify for :usb name,DATE20121228*/
 #define USB_LOG "USB"
 
 struct android_usb_function {
@@ -1828,8 +1824,7 @@ static int android_bind(struct usb_composite_dev *cdev)
 	/* Default strings - should be updated by userspace */
 	strncpy(manufacturer_string, MANUFACTURER_STRING, sizeof(manufacturer_string) - 1);
 	strncpy(product_string, PRODUCT_STRING, sizeof(product_string) - 1);
-      //rong.wang modify for :usb name DATE20121228
-        strncpy(serial_string, "Fly IQ445", sizeof(serial_string) - 1);//strncpy(serial_string, "0123456789ABCDEF", sizeof(serial_string) - 1);
+	strncpy(serial_string, "0123456789ABCDEF", sizeof(serial_string) - 1);
 
 	id = usb_string_id(cdev);
 	if (id < 0)
