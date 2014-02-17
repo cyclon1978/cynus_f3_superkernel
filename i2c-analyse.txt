@@ -1,0 +1,22 @@
+fail:
+0xfd/66 (0x42),
+0xfc/98 (0x62)
+
+ok:
+0x1/108 (0x6C) OV5648MIPI_WRITE_ID,
+0x1/96 (0x60)
+
+OV5648:
+
+/* SENSOR READ/WRITE ID */
+#define OV5648MIPI_WRITE_ID (0x6c)
+#define OV5648MIPI_READ_ID  (0x6d)
+
+HI704:
+#define HI704_SENSOR_ID                         0x0096
+
+#define HI704_WRITE_ID		0x60
+#define HI704_READ_ID		0x61
+
+-> who is WRITE_ID 0x42?
+-> who is WRITE_ID 0x62?

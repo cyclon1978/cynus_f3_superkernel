@@ -1,0 +1,51 @@
+f3 sensors:
+
+BMC050 Orientation
+BMM050 Magnetic
+BMA250 3-axis accelerometer
+AP3220 Proximity
+
+f3 modules:
+
+root@android:/sys/bus/i2c/devices # cat 0-000f/uevent 
+MODALIAS=i2c:KXTJ2
+
+root@android:/sys/bus/i2c/devices # cat 0-0012/uevent
+DRIVER=bmm050
+MODALIAS=i2c:bmm050
+
+root@android:/sys/bus/i2c/devices # cat 0-0018/uevent 
+DRIVER=BMA250
+MODALIAS=i2c:BMA250
+
+root@android:/sys/bus/i2c/devices # cat 0-0019/uevent                          
+MODALIAS=i2c:BMA222E
+
+root@android:/sys/bus/i2c/devices # cat 0-001c/uevent                          
+DRIVER=ap3220
+MODALIAS=i2c:ap3220
+
+root@android:/sys/bus/i2c/devices # cat 1-0026/uevent                          
+DRIVER=msg2133
+MODALIAS=i2c:mtk-tpd
+
+root@android:/sys/bus/i2c/devices # cat 1-007f/uevent                          
+DRIVER=kd_camera_hw
+MODALIAS=i2c:kd_camera_hw
+
+root@android:/sys/bus/i2c/devices # cat 2-0060/uevent                          
+DRIVER=mt6329_pmic
+MODALIAS=i2c:mt6329_pmic
+
+root@android:/sys/bus/i2c/devices # cat 2-0061/uevent                          
+DRIVER=mt6329_pmic_bank1
+MODALIAS=i2c:mt6329_pmic_bank1
+
+iq445 wrong modules ????:
+root@android:/sys/bus/i2c/devices # cat ./1-0039/uevent                        
+MODALIAS=i2c:FT6x06
+
+
+
+
+
