@@ -39,6 +39,8 @@
 #include "mach/upmu_common_sw.h"
 #include "mach/upmu_hw.h"
 
+#include "voltages.h"
+
 /**************************************************
 * define HW reserved register address
 ***************************************************/
@@ -918,7 +920,7 @@ void mtk_cpufreq_early_suspend(struct early_suspend *h)
 
     mt6329_read_byte(0x47, &g_dvs_volt);
 
-    upmu_buck_vosel_dvs_00(BUCK_VPROC, 0x08);
+    upmu_buck_vosel_dvs_00(BUCK_VPROC, VOLTAGE_S);
     xlog_printk(ANDROID_LOG_INFO, "Power/DVFS", "enter early suspend - change dvs_00 to sleep voltage for power saving\n");
 
     cpufreq_cpu_put(policy);
