@@ -50,12 +50,19 @@
 #define VOLTAGE_2_UV_4 (0x0F)
 #define VOLTAGE_3_UV_4 (0x0F)
 
-// next try: sleep and 1GHz
+// sleep and 1GHz -> working fine
 #define VOLTAGE_S_UV_5 (0x05)
 #define VOLTAGE_0_UV_5 (0x05)
 #define VOLTAGE_1_UV_5 (0x0D)
 #define VOLTAGE_2_UV_5 (0x10)
 #define VOLTAGE_3_UV_5 (0x12)
+
+// next try: sleep
+#define VOLTAGE_S_UV_6 (0x04)
+#define VOLTAGE_0_UV_6 (0x04)
+#define VOLTAGE_1_UV_6 (0x0D)
+#define VOLTAGE_2_UV_6 (0x10)
+#define VOLTAGE_3_UV_6 (0x12)
 
 #define VOLTAGE_S_DEF (0x08)
 #define VOLTAGE_0_DEF (0x08)
@@ -65,17 +72,17 @@
 
 // VOLTAGE_S && VOLTAGE_0
 // not working minimum: UNKNOWN
-// working: 0x06
+// working: 0x05
 
 // VOLTAGE_3
 // not working minimum for VOLTAGE_3 (max freq) is 0x0F -> freeze
-// working: 0x13
+// working: 0x12
 
-#define VOLTAGE_S VOLTAGE_S_UV_5
-#define VOLTAGE_0 VOLTAGE_0_UV_5
-#define VOLTAGE_1 VOLTAGE_1_UV_5
-#define VOLTAGE_2 VOLTAGE_2_UV_5
-#define VOLTAGE_3 VOLTAGE_3_UV_5
+#define VOLTAGE_S VOLTAGE_S_UV_6
+#define VOLTAGE_0 VOLTAGE_0_UV_6
+#define VOLTAGE_1 VOLTAGE_1_UV_6
+#define VOLTAGE_2 VOLTAGE_2_UV_6
+#define VOLTAGE_3 VOLTAGE_3_UV_6
 
 #endif // __VOLTAGES_H__
 

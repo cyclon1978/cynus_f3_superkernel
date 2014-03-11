@@ -250,8 +250,8 @@ on post-fs
     chown root log /proc/vmallocinfo
     chmod 0440 /proc/vmallocinfo
 
-	#change permissions for mediaserver
-	chown root media /proc/clkmgr/mipi_test
+    #change permissions for mediaserver
+    chown root media /proc/clkmgr/mipi_test
 
     chown root log /proc/slabinfo
     chmod 0440 /proc/slabinfo
@@ -1406,4 +1406,9 @@ service poad /system/bin/poad
 service bmm050 /system/bin/bmm050d
     disabled
     oneshot
+
+# init.d support
+service initd /system/bin/logwrapper /system/xbin/busybox run-parts /system/etc/init.d
+    class main
+    oneshot 
 
