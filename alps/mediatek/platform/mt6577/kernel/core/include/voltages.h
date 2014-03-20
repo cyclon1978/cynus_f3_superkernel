@@ -64,6 +64,13 @@
 #define VOLTAGE_2_UV_6 (0x10)
 #define VOLTAGE_3_UV_6 (0x12)
 
+// next try: wakeup from sleep - screen black issue fix try...
+#define VOLTAGE_S_UV_7 (0x04)
+#define VOLTAGE_0_UV_7 (0x08)
+#define VOLTAGE_1_UV_7 (0x0F)
+#define VOLTAGE_2_UV_7 (0x12)
+#define VOLTAGE_3_UV_7 (0x12)
+
 #define VOLTAGE_S_DEF (0x08)
 #define VOLTAGE_0_DEF (0x08)
 #define VOLTAGE_1_DEF (0x0F)
@@ -78,11 +85,11 @@
 // not working minimum for VOLTAGE_3 (max freq) is 0x0F -> freeze
 // working: 0x12
 
-#define VOLTAGE_S VOLTAGE_S_UV_6
-#define VOLTAGE_0 VOLTAGE_0_UV_6
-#define VOLTAGE_1 VOLTAGE_1_UV_6
-#define VOLTAGE_2 VOLTAGE_2_UV_6
-#define VOLTAGE_3 VOLTAGE_3_UV_6
+#define VOLTAGE_S VOLTAGE_S_UV_7
+#define VOLTAGE_0 VOLTAGE_0_UV_7
+#define VOLTAGE_1 VOLTAGE_1_UV_7
+#define VOLTAGE_2 VOLTAGE_2_UV_7
+#define VOLTAGE_3 VOLTAGE_3_UV_7
 
 #endif // __VOLTAGES_H__
 
