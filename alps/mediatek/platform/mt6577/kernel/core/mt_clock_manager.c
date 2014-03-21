@@ -13,7 +13,7 @@
 #include "mach/mtk_rtc.h"
 #include "mach/mt_clock_manager.h"
 #include "mach/mt_clkmgr_internal.h"
-#include "mach/mt_cpufreq.h"
+#include "mach/mt_cpufreq.h" //BindassBoost Mtk6577 Smart Overclocking Interface
 #include "mach/mt_cpe.h"
 #include "mach/mt_sc.h"
 
@@ -2787,13 +2787,15 @@ int pll_fsel(enum mt65xx_pll_id id, unsigned int pll_value)
     if (id == MT65XX_TVDDS) {
         DRV_WriteReg16(mt65xx_pll_regs[id], hi_val); 
         DRV_WriteReg16(mt65xx_pll_regs[id] + 4, lo_val); 
-    } /*BBoost*/
+    } //BindassBoost Mtk6577 Smart Overclocking Interface called here
     else if (id == MT65XX_ARMPLL) {
-        unsigned int temp = (DRV_Reg16(mt65xx_pll_regs[id]) & 0x3F) | (hi_val );
-      	DRV_WriteReg16(mt65xx_pll_regs[id],temp); //why 7FC0 ?
+        unsigned int temp = ((DRV_Reg16(mt65xx_pll_regs[id]) & 0x3F) | (hi_val ));
+      	DRV_WriteReg16(mt65xx_pll_regs[id],temp);
         BBoost_Overclcock_manage(temp);
     }
     else if (MT65XX_MAINPLL || MT65XX_MDPLL || MT65XX_MEMPLL){
+        DRV_WriteReg16(mt65xx_pll_regs[id], 
+            (DRV_Reg16(mt65xx_pll_regs[id]) & 0x3F) | (hi_val ));
     }else {
         /* we only adjust FBDIV and PREDIV */
         DRV_WriteReg16(mt65xx_pll_regs[id], 
