@@ -71,6 +71,13 @@
 #define VOLTAGE_2_UV_7 (0x12)
 #define VOLTAGE_3_UV_7 (0x12)
 
+// next try: reduce lag - may have something to do with voltage... this are the "varun uv values except the sleep value; for overclock use different values
+#define VOLTAGE_S_UV_8 (0x04)
+#define VOLTAGE_0_UV_8 (0x08)
+#define VOLTAGE_1_UV_8 (0x0F)
+#define VOLTAGE_2_UV_8 (0x13)
+#define VOLTAGE_3_UV_8 (0x17)
+
 #define VOLTAGE_S_DEF (0x08)
 #define VOLTAGE_0_DEF (0x08)
 #define VOLTAGE_1_DEF (0x0F)
@@ -85,11 +92,18 @@
 // not working minimum for VOLTAGE_3 (max freq) is 0x0F -> freeze
 // working: 0x12
 
-#define VOLTAGE_S VOLTAGE_S_UV_7
-#define VOLTAGE_0 VOLTAGE_0_UV_7
-#define VOLTAGE_1 VOLTAGE_1_UV_7
-#define VOLTAGE_2 VOLTAGE_2_UV_7
-#define VOLTAGE_3 VOLTAGE_3_UV_7
+#define VOLTAGE_S VOLTAGE_S_UV_8
+#define VOLTAGE_0 VOLTAGE_0_UV_8
+#define VOLTAGE_1 VOLTAGE_1_UV_8
+#define VOLTAGE_2 VOLTAGE_2_UV_8
+#define VOLTAGE_3 VOLTAGE_3_UV_8
+
+// OC: not active in sleep mode, maybe only use in VOLTAGE_3/1 Ghz mode; maybe use higher voltages...
+#define VOLTAGE_S_OC VOLTAGE_S
+#define VOLTAGE_0_OC VOLTAGE_0
+#define VOLTAGE_1_OC VOLTAGE_1
+#define VOLTAGE_2_OC VOLTAGE_2
+#define VOLTAGE_3_OC (0x17)
 
 #endif // __VOLTAGES_H__
 
