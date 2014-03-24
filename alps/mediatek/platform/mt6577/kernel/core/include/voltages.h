@@ -73,7 +73,7 @@
 
 // next try: reduce lag - may have something to do with voltage... this are the "varun uv values except the sleep value; for overclock use different values
 #define VOLTAGE_S_UV_8 (0x04)
-#define VOLTAGE_0_UV_8 (0x08)
+#define VOLTAGE_0_UV_8 (0x04)
 #define VOLTAGE_1_UV_8 (0x0F)
 #define VOLTAGE_2_UV_8 (0x13)
 #define VOLTAGE_3_UV_8 (0x17)
