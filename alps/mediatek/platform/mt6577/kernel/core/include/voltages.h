@@ -64,7 +64,7 @@
 #define VOLTAGE_2_UV_6 (0x10)
 #define VOLTAGE_3_UV_6 (0x12)
 
-// next try: wakeup from sleep - screen black issue fix try...
+// next try: "wakeup from sleep - screen black issue" fix try...
 #define VOLTAGE_S_UV_7 (0x04)
 #define VOLTAGE_0_UV_7 (0x08)
 #define VOLTAGE_1_UV_7 (0x0F)
@@ -73,10 +73,26 @@
 
 // next try: reduce lag - may have something to do with voltage... this are the "varun uv values except the sleep value; for overclock use different values
 #define VOLTAGE_S_UV_8 (0x04)
-#define VOLTAGE_0_UV_8 (0x04)
+#define VOLTAGE_0_UV_8 (0x04) // this may have caused "wakeup from sleep - screen black issue", it's back...
 #define VOLTAGE_1_UV_8 (0x0F)
 #define VOLTAGE_2_UV_8 (0x13)
 #define VOLTAGE_3_UV_8 (0x17)
+
+// next try: reduce lag - may have something to do with voltage... this are the "varun uv values except the sleep value; for overclock use different values
+// "wakeup from sleep - screen black issue", it's still there, back to "varun" values
+// still there with varuns values, it is sensors issue!
+#define VOLTAGE_S_UV_9 (0x04)
+#define VOLTAGE_0_UV_9 (0x08)
+#define VOLTAGE_1_UV_9 (0x0F)
+#define VOLTAGE_2_UV_9 (0x13)
+#define VOLTAGE_3_UV_9 (0x17)
+
+// sleep, baby sleep...
+#define VOLTAGE_S_UV_10 (0x02)
+#define VOLTAGE_0_UV_10 (0x08)
+#define VOLTAGE_1_UV_10 (0x0F)
+#define VOLTAGE_2_UV_10 (0x13)
+#define VOLTAGE_3_UV_10 (0x17)
 
 #define VOLTAGE_S_DEF (0x08)
 #define VOLTAGE_0_DEF (0x08)
@@ -84,26 +100,21 @@
 #define VOLTAGE_2_DEF (0x13)
 #define VOLTAGE_3_DEF (0x17)
 
+
+
 // VOLTAGE_S && VOLTAGE_0
 // not working minimum: UNKNOWN
-// working: 0x05
+// working: 0x04
 
 // VOLTAGE_3
 // not working minimum for VOLTAGE_3 (max freq) is 0x0F -> freeze
 // working: 0x12
 
-#define VOLTAGE_S VOLTAGE_S_UV_8
-#define VOLTAGE_0 VOLTAGE_0_UV_8
-#define VOLTAGE_1 VOLTAGE_1_UV_8
-#define VOLTAGE_2 VOLTAGE_2_UV_8
-#define VOLTAGE_3 VOLTAGE_3_UV_8
-
-// OC: not active in sleep mode, maybe only use in VOLTAGE_3/1 Ghz mode; maybe use higher voltages...
-#define VOLTAGE_S_OC VOLTAGE_S
-#define VOLTAGE_0_OC VOLTAGE_0
-#define VOLTAGE_1_OC VOLTAGE_1
-#define VOLTAGE_2_OC VOLTAGE_2
-#define VOLTAGE_3_OC (0x17)
+#define VOLTAGE_S VOLTAGE_S_UV_10
+#define VOLTAGE_0 VOLTAGE_0_UV_10
+#define VOLTAGE_1 VOLTAGE_1_UV_10
+#define VOLTAGE_2 VOLTAGE_2_UV_10
+#define VOLTAGE_3 VOLTAGE_3_UV_10
 
 #endif // __VOLTAGES_H__
 

@@ -1,9 +1,48 @@
 f3 sensors:
 
-BMC050 Orientation
-BMM050 Magnetic
-BMA250 3-axis accelerometer
-AP3220 Proximity
+BMC050 Orientation (working)
+BMM050 Magnetic (working)
+BMA250 3-axis accelerometer (working)
+AP3220 Proximity (working)
+
+f3 sensors with wrong n821 v11 sensors.so
+
+mma8453 3-axis Accelerometer
+APDS9930 Proximity Sensor
+APDS9930 Light Sensor
+
+f3 sensors with wrong (iq445) sensors.so:
+- same with a848g duo sensors.so
+- same with sensors.mt6577.71.so
+
+BMA250 3-axis accelerometer (working)
+MSG proximity sensor (working)
+
+f3 sensors with wrong sensors.mt6577.lewa-n9776.so.test
+- black screen issue!
+
+yamaha530 Orientation sensor (working)
+yamaha530 3-axis Magnetic Field sensor (working) 
+bma222 3-axis accelerometer (working)
+tmd2771 Proximity Sensor (working)
+tmd2771 Light Sensor (working)
+
+f3 sensors with wrong (a110) sensors.so:
+- same with sensors.mt6577.org-n9776.so.test
+- black screen issue!
+
+yamaha530 Orientation sensor (working)
+yamaha530 3-axis Magnetic Field sensor (working)
+bma222 3-axis accelerometer (working)
+tmd2771 Proximity Sensor (working)
+tmd2771 Light Sensor (working)
+MPU3000 gyroscope Sensor (not working -> try add to kernel)
+Rotation Vector Sensor (i)
+Gravity Sensor (i)
+Linear Acceleration Sensor (i)
+Orientation Sensor (i)
+Corrected Gyroscope Sensor (i)
+
 
 f3 modules:
 
