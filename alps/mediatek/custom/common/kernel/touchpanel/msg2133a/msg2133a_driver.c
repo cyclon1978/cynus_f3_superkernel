@@ -87,6 +87,10 @@
 #include <mach/mt_boot.h>
 #endif
 
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+#include <linux/input/sweep2wake.h>
+#endif
+
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
 #endif 
@@ -125,6 +129,11 @@ extern struct tpd_device *tpd;
 static void tpd_early_suspend(struct early_suspend *handler);
 static void tpd_late_resume(struct early_suspend *handler);
 #endif 
+
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+static int s2w_st_flag=0;
+#endif
+
  
 extern void mt65xx_eint_unmask(unsigned int line);
 extern void mt65xx_eint_mask(unsigned int line);
@@ -273,9 +282,40 @@ static void tpd_reset(void)
 	 //TPD_DEBUG("D[%4d %4d %4d] ", x, y, p);
 	 input_mt_sync(tpd->dev);
 	 TPD_DOWN_DEBUG_TRACK(x,y);
+
+printk("[SWEEP2WAKE]: tpd down\n");
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+		if (sweep2wake) {
+printk("[SWEEP2WAKE]: detecting sweep\n");
+			detect_sweep2wake(x, y, jiffies, p);
+		}
+#endif
+
  }
 
  static int tpd_up(int x, int y,int *count) {
+printk("[SWEEP2WAKE]: inside tpd up\n");
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+s2w_st_flag = 0;
+				if (sweep2wake > 0) {
+					printk("[sweep2wake]:line : %d | func : %s\n", __LINE__, __func__);
+printk("[SWEEP2WAKE]: resetin s2w param\n");
+					printk("[sweep2wake]:line : %d | func : %s\n", __LINE__, __func__);
+					exec_count = true;
+					barrier[0] = false;
+					barrier[1] = false;
+					scr_on_touch = false;
+					tripoff = 0;
+					tripon = 0;
+					triptime = 0;
+				}
+				if (doubletap2wake && scr_suspended) {
+printk("[SWEEP2WAKE]: detecting d2w\n");
+					doubletap2wake_func(x, y, jiffies);
+				}
+#endif
+
+
 	 if(*count>0) {
 		 input_report_abs(tpd->dev, ABS_PRESSURE, 0);
 		 input_report_key(tpd->dev, BTN_TOUCH, 0);
@@ -294,7 +334,7 @@ static void tpd_reset(void)
 #define __FIRMWARE_UPDATE__
 #ifdef __FIRMWARE_UPDATE__
 
-/*adair:0777为打开apk升级功能，0664为关闭apk升级功能，无需将宏__FIRMWARE_UPDATE__关闭*/
+/*adair:0777为\B4\F2\BF\AAapk\C9\FD\BC\B6\B9\A6\C4埽\AC0664为\B9乇\D5apk\C9\FD\BC\B6\B9\A6\C4埽\AC\CE\DE\D0杞玕BA\EA__FIRMWARE_UPDATE__\B9乇\D5*/
 #define CTP_AUTHORITY 0777//0664
 
 //#define ENABLE_AUTO_UPDATA
@@ -303,7 +343,7 @@ static void tpd_reset(void)
 #else
 #define TP_DEBUG(format, ...)
 #endif
-#if 0//adair:正式版本关闭
+#if 0//adair:\D5\FD式\B0姹綷B9乇\D5
 #define TP_DEBUG_ERR(format, ...)	printk(KERN_ERR "MSG2133_MSG21XXA_update_ERR***" format "\n", ## __VA_ARGS__)
 #else
 #define TP_DEBUG_ERR(format, ...)
@@ -319,10 +359,10 @@ static int FwDataCnt;
 struct class *firmware_class;
 struct device *firmware_cmd_dev;
 
-#define N_BYTE_PER_TIME (8)//adair:1024的约数,根据平台修改
+#define N_BYTE_PER_TIME (8)//adair:1024\B5\C4约\CA\FD,\B8\F9\BE\DD平台\D0薷\C4
 #define UPDATE_TIMES (1024/N_BYTE_PER_TIME)
 
-#if 0//adair:根据平台不同选择不同位的i2c地址
+#if 0//adair:\B8\F9\BE\DD平台\B2\BB同选\D4\F1\B2\BB同位\B5\C4i2c\B5\D8址
 #define FW_ADDR_MSG21XX   (0xC4)
 #define FW_ADDR_MSG21XX_TP   (0x4C)
 #define FW_UPDATE_ADDR_MSG21XX   (0x92)
@@ -332,7 +372,7 @@ struct device *firmware_cmd_dev;
 #define FW_UPDATE_ADDR_MSG21XX   (0x92>>1)
 #endif
 
-/*adair:以下5个以Hal开头的函数需要根据平台修改*/
+/*adair:\D2\D4\CF\C25\B8\F6\D2\D4Hal\BF\AA头\B5暮\AF\CA\FD\D0\E8要\B8\F9\BE\DD平台\D0薷\C4*/
 /*disable irq*/
 static void HalDisableIrq(void)
 {
@@ -2654,6 +2694,26 @@ static int MSG2133_init(void)
    return 0;
 }
 
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+/* gives back true if only one touch is recognized */
+bool is_single_touch(void)
+{
+	/*int i = 0, cnt = 0;
+
+	for( i= 0; i<MAX_NUM_FINGER; i++ ) {
+		if ((!fingerInfo[i].status) ||
+				(fingerInfo[i].status == TOUCH_EVENT_RELEASE))
+		continue;
+		else cnt++;
+	}*/
+printk("[SWEEP2WAKE]: inside single touch\n");
+	if (s2w_st_flag == 1)
+	return true;
+	else
+	return false;
+}
+#endif
+
  static int __devinit tpd_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
  {
 		int error;
@@ -2816,6 +2876,14 @@ static int tpd_local_init(void)
 static int tpd_resume(struct i2c_client *client)
 {
 	int retval = TPD_OK;
+
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+printk("[SWEEP2WAKE]: resume\n");
+	scr_suspended = false;
+	if (sweep2wake == 0 && doubletap2wake == 0)
+#endif
+{
+
 	TPD_DEBUG("Magnum  ==%d!\n",ctp_suspend);
 	if(ctp_suspend){
 		TPD_DEBUG("ctp not suspend, resume depends on suspend...!\n");
@@ -2853,12 +2921,26 @@ static int tpd_resume(struct i2c_client *client)
 		msleep(200);
 	}
 	ctp_suspend = 1;   // reset;
+
+}
+ #ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+	else if (sweep2wake > 0 || doubletap2wake > 0)
+	mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+#endif
+
 	return retval;
  }
 
 static int tpd_suspend(struct i2c_client *client, pm_message_t message)
 {
 	int retval = TPD_OK;
+
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+	scr_suspended = true;
+printk("[SWEEP2WAKE]: early suspernd\n");
+	if (sweep2wake == 0 && doubletap2wake == 0)
+#endif
+{
 
 	TPD_DEBUG("================Magnum_TPD enter sleep\n");
 #ifdef CTP_SIMULATE_PS
@@ -2899,6 +2981,13 @@ static int tpd_suspend(struct i2c_client *client, pm_message_t message)
 	ctp_suspend = 0;
 	TPD_DEBUG("Magnum suspend END....\n");
 	}
+
+}
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+	else if (sweep2wake > 0 || doubletap2wake > 0)
+	mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+#endif
+
 	return retval;
  }
 

@@ -1,3 +1,4 @@
+ccflags-y += -I$(MTK_ROOT_CUSTOM)/$(MTK_PROJECT)/common
 obj-$(CONFIG_MTK_MMC) += dbg.o
 obj-$(CONFIG_MTK_MMC) += sd.o mt_sd_misc.o
 
