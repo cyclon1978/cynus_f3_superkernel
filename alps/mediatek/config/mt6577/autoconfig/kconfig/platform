@@ -2569,11 +2569,14 @@ CONFIG_RAMDISK_OFFSET=0x1100000
 # required for ZRAM
 CONFIG_ZSMALLOC=y
 CONFIG_ZRAM=m
-CONFIG_ZRAM_DEBUG=y
+CONFIG_ZRAM_DEBUG=n
 CONFIG_ZRAM_FOR_ANDROID=y
-# GOOGLE SNAPPY COMPRESS FOR ZRAM - may not supported in every zram implementation
-# CONFIG_SNAPPY_COMPRESS is not set
-# CONFIG_SNAPPY_DECOMPRESS is not set
+# feature GOOGLE SNAPPY COMPRESS FOR ZRAM - may not supported in every zram implementation
+CONFIG_SNAPPY_COMPRESS=y
+CONFIG_SNAPPY_DECOMPRESS=y
+# recommended by google for zram effectiveness
+CONFIG_CGROUP_MEM_RES_CTLR=y
+CONFIG_CGROUP_MEM_RES_CTLR_SWAP=y
 
 # additionals (in sep. config in BB-Kernel)
 CONFIG_IOSCHED_SIO=y
