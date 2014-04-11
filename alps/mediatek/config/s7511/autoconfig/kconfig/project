@@ -232,10 +232,14 @@ CONFIG_LOCAL_WDT=y
 # CONFIG_MT592X_SDIO_CLNT is not set
 CONFIG_USB_MTK_HDRC=y
 CONFIG_USB_MTK_HDRC_GADGET=y
+# add usb otg
 # CONFIG_USB_MTK_OTG is not set
+
 CONFIG_USB_MTK_DEBUG_FS=y
 CONFIG_USB_MTK_DEBUG=y
+# needed to have a virtual hub for usb otg
 # CONFIG_USB_MTK_HDRC_HCD is not set
+
 
 #add for power loss test
 #
@@ -249,3 +253,4 @@ CONFIG_CRYPTO_SHA256=y
 
 # Ciphers
 CONFIG_CRYPTO_AES=y
+

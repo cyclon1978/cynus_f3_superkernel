@@ -91,6 +91,7 @@
 #include <linux/input/sweep2wake.h>
 #endif
 
+
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
 #endif 
@@ -2693,26 +2694,6 @@ static int MSG2133_init(void)
    tpd_reset();
    return 0;
 }
-
-#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
-/* gives back true if only one touch is recognized */
-bool is_single_touch(void)
-{
-	/*int i = 0, cnt = 0;
-
-	for( i= 0; i<MAX_NUM_FINGER; i++ ) {
-		if ((!fingerInfo[i].status) ||
-				(fingerInfo[i].status == TOUCH_EVENT_RELEASE))
-		continue;
-		else cnt++;
-	}*/
-printk("[SWEEP2WAKE]: inside single touch\n");
-	if (s2w_st_flag == 1)
-	return true;
-	else
-	return false;
-}
-#endif
 
  static int __devinit tpd_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
  {

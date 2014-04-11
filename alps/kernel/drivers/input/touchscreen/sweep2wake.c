@@ -41,10 +41,11 @@
 #define DEFAULT_S2W_PWRKEY_DUR          60
 
 /* external function from the ts driver */
-extern bool is_single_touch(void);
+bool is_single_touch(void);
 
 /* Resources */
 int sweep2wake = 2;
+int s2w_st_flag = 0;
 int doubletap2wake = 1;
 int dt2w_switch_temp = 1;
 int dt2w_changed = 0;
@@ -56,7 +57,7 @@ static DEFINE_MUTEX(pwrkeyworklock);
 static int s2w_start_posn = DEFAULT_S2W_X_B1;
 static int s2w_mid_posn = DEFAULT_S2W_X_B2;
 static int s2w_end_posn = (DEFAULT_S2W_X_MAX - DEFAULT_S2W_X_FINAL);
-static int s2w_height_adjust = 829; // 830 is in dmesg for button sweep
+static int s2w_height_adjust = 829; // CHANGE-BY-ME: 830 is in dmesg for button sweep -> > 829 fits
 static int s2w_threshold = DEFAULT_S2W_X_FINAL;
 //static int s2w_max_posn = DEFAULT_S2W_X_MAX;
 
@@ -147,6 +148,23 @@ void sweep2wake_pwrtrigger(void) {
 printk("[SWEEP2WAKE]: power triggered\n");
 	schedule_work(&sweep2wake_presspwr_work);
         return;
+}
+
+bool is_single_touch(void)
+{
+	/*int i = 0, cnt = 0;
+
+	for( i= 0; i<MAX_NUM_FINGER; i++ ) {
+		if ((!fingerInfo[i].status) ||
+				(fingerInfo[i].status == TOUCH_EVENT_RELEASE))
+		continue;
+		else cnt++;
+	}*/
+printk("[SWEEP2WAKE]: inside single touch\n");
+	if (s2w_st_flag == 1)
+	return true;
+	else
+	return false;
 }
 
 /* Sweep2wake main function */

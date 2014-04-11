@@ -840,7 +840,7 @@ static int kpd_pdrv_probe(struct platform_device *pdev)
 
 #ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
 	sweep2wake_setdev(kpd_input_dev);
-	printk(KERN_INFO "[sweep2wake]: set device %s\n", kpd_input_dev->name);
+	printk("[SWEEP2WAKE]: power key capture done\n");
 #endif
 
 #if KPD_AUTOTEST

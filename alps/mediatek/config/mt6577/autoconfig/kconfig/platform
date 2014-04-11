@@ -1688,6 +1688,7 @@ CONFIG_USB_DEVICE_CLASS=y
 #
 # USB Device Class drivers
 #
+# may be usb otg related
 # CONFIG_USB_ACM is not set
 # CONFIG_USB_PRINTER is not set
 # CONFIG_USB_WDM is not set
@@ -2170,6 +2171,7 @@ CONFIG_MAGIC_SYSRQ=y
 # CONFIG_UNUSED_SYMBOLS is not set
 CONFIG_DEBUG_FS=y
 # CONFIG_HEADERS_CHECK is not set
+# enable later again...
 # CONFIG_DEBUG_SECTION_MISMATCH is not set
 CONFIG_DEBUG_KERNEL=y
 # CONFIG_DEBUG_SHIRQ is not set
@@ -2386,6 +2388,7 @@ CONFIG_CRYPTO_TWOFISH_COMMON=y
 #
 CONFIG_CRYPTO_DEFLATE=y
 # CONFIG_CRYPTO_ZLIB is not set
+# who needs that?
 # CONFIG_CRYPTO_LZO is not set
 
 #
@@ -2556,13 +2559,21 @@ CONFIG_LOCAL_WDT=y
 #
 CONFIG_RAMDISK_OFFSET=0x1100000
 
-# new in kernel 3.4.5
-CONFIG_DYNAMIC_PAGE_WRITEBACK=n
-CONFIG_DYNAMIC_FSYNC=n
+# new in kernel 3.4.5, enable later!
+# CONFIG_DYNAMIC_PAGE_WRITEBACK is not set
+# CONFIG_DYNAMIC_FSYNC is not set
 
 # enable zram feature
-# CONFIG_ZSMALLOC=y
-# CONFIG_ZRAM=y
+# may not be required
+# CONFIG_ZCACHE is not set
+# required for ZRAM
+CONFIG_ZSMALLOC=y
+CONFIG_ZRAM=m
+CONFIG_ZRAM_DEBUG=y
+CONFIG_ZRAM_FOR_ANDROID=y
+# GOOGLE SNAPPY COMPRESS FOR ZRAM - may not supported in every zram implementation
+# CONFIG_SNAPPY_COMPRESS is not set
+# CONFIG_SNAPPY_DECOMPRESS is not set
 
 # additionals (in sep. config in BB-Kernel)
 CONFIG_IOSCHED_SIO=y
@@ -2598,3 +2609,4 @@ CONFIG_MTD_SWAP=y
 
 # Sweep2Wake feature
 CONFIG_TOUCHSCREEN_SWEEP2WAKE=y
+

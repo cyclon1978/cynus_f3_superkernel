@@ -94,6 +94,14 @@
 #define VOLTAGE_2_UV_10 (0x13)
 #define VOLTAGE_3_UV_10 (0x17)
 
+// cap max voltages (middle voltages are nearly unused, so only deep sleep and 1GHz have a real effect
+#define VOLTAGE_S_UV_11 (0x02)
+#define VOLTAGE_0_UV_11 (0x08)
+#define VOLTAGE_1_UV_11 (0x0F)
+#define VOLTAGE_2_UV_11 (0x12)
+#define VOLTAGE_3_UV_11 (0x12)
+// result: slow, bad response, may be not related to voltages, but...
+
 #define VOLTAGE_S_DEF (0x08)
 #define VOLTAGE_0_DEF (0x08)
 #define VOLTAGE_1_DEF (0x0F)
