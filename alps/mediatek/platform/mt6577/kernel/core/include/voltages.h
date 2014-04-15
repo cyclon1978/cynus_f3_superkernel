@@ -92,15 +92,22 @@
 #define VOLTAGE_0_UV_10 (0x08)
 #define VOLTAGE_1_UV_10 (0x0F)
 #define VOLTAGE_2_UV_10 (0x13)
-#define VOLTAGE_3_UV_10 (0x17)
+#define VOLTAGE_3_UV_10 (0x17) // antutu 8451[817,599]/8276[803,630] (clean/ksm+zram)
 
 // cap max voltages (middle voltages are nearly unused, so only deep sleep and 1GHz have a real effect
 #define VOLTAGE_S_UV_11 (0x02)
 #define VOLTAGE_0_UV_11 (0x08)
 #define VOLTAGE_1_UV_11 (0x0F)
 #define VOLTAGE_2_UV_11 (0x12)
-#define VOLTAGE_3_UV_11 (0x12)
+#define VOLTAGE_3_UV_11 (0x12) // antutu 8288[814,622]/? (clean/ksm+zram)
 // result: slow, bad response, may be not related to voltages, but...
+
+// sleep, baby sleep...
+#define VOLTAGE_S_UV_12 (0x02)
+#define VOLTAGE_0_UV_12 (0x08)
+#define VOLTAGE_1_UV_12 (0x0F)
+#define VOLTAGE_2_UV_12 (0x13)
+#define VOLTAGE_3_UV_12 (0x1B) // 1B is absolute maximum but will be capped. antutu 8302[806,636]/8466[812,653] (clean/ksm+zram)
 
 #define VOLTAGE_S_DEF (0x08)
 #define VOLTAGE_0_DEF (0x08)
@@ -118,11 +125,13 @@
 // not working minimum for VOLTAGE_3 (max freq) is 0x0F -> freeze
 // working: 0x12
 
-#define VOLTAGE_S VOLTAGE_S_UV_10
-#define VOLTAGE_0 VOLTAGE_0_UV_10
-#define VOLTAGE_1 VOLTAGE_1_UV_10
-#define VOLTAGE_2 VOLTAGE_2_UV_10
-#define VOLTAGE_3 VOLTAGE_3_UV_10
+// this are the actual used values
+// todo: get lowest TOP-Voltage with no antutu score decrease; test if score is heigher with stock value
+#define VOLTAGE_S VOLTAGE_S_UV_11
+#define VOLTAGE_0 VOLTAGE_0_UV_11
+#define VOLTAGE_1 VOLTAGE_1_UV_11
+#define VOLTAGE_2 VOLTAGE_2_UV_11
+#define VOLTAGE_3 VOLTAGE_3_UV_11
 
 #endif // __VOLTAGES_H__
 

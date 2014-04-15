@@ -231,7 +231,12 @@ void mt_pmic_low_power_init(void)
                     upmu_buck_vosel_dvs_00(BUCK_VPROC, VOLTAGE_0); // 0x08: 0.900V DVS_VOL_00 | 0x07 for undervolt is ok
                     upmu_buck_vosel_dvs_01(BUCK_VPROC, VOLTAGE_1); // 0x0F: 1.075V DVS_VOL_01 | 0x0E for undervolt is ok
                     upmu_buck_vosel_dvs_10(BUCK_VPROC, VOLTAGE_2); // 0x13: 1.175V DVS_VOL_10 | 0x12 for undervolt is ok
-                    upmu_buck_vosel_dvs_11(BUCK_VPROC, VOLTAGE_3);
+                    if (volt < VOLTAGE_3) {
+                        // cap to maximum supported voltage
+                        upmu_buck_vosel_dvs_11(BUCK_VPROC, volt);
+                    } else {
+                        upmu_buck_vosel_dvs_11(BUCK_VPROC, VOLTAGE_3);
+                    }
                 }
             }
             else
@@ -240,7 +245,12 @@ void mt_pmic_low_power_init(void)
                 upmu_buck_vosel_dvs_00(BUCK_VPROC, VOLTAGE_0); // 0x08: 0.900V DVS_VOL_00
                 upmu_buck_vosel_dvs_01(BUCK_VPROC, VOLTAGE_1); // 0x0F: 1.075V DVS_VOL_01
                 upmu_buck_vosel_dvs_10(BUCK_VPROC, VOLTAGE_2); // 0x13: 1.175V DVS_VOL_10
-                upmu_buck_vosel_dvs_11(BUCK_VPROC, VOLTAGE_3);
+                if (volt < VOLTAGE_3) {
+                    // cap to maximum supported voltage
+                    upmu_buck_vosel_dvs_11(BUCK_VPROC, volt);
+                } else {
+                    upmu_buck_vosel_dvs_11(BUCK_VPROC, VOLTAGE_3);
+                }
             }
         }
     }
