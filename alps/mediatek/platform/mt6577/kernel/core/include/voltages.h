@@ -99,7 +99,7 @@
 #define VOLTAGE_0_UV_11 (0x08)
 #define VOLTAGE_1_UV_11 (0x0F)
 #define VOLTAGE_2_UV_11 (0x12)
-#define VOLTAGE_3_UV_11 (0x12) // antutu 8288[814,622]/? (clean/ksm+zram)
+#define VOLTAGE_3_UV_11 (0x12) // antutu 8296[814,624]/? (clean/ksm+zram) [] -> top/top values!
 // result: slow, bad response, may be not related to voltages, but...
 
 // sleep, baby sleep...
