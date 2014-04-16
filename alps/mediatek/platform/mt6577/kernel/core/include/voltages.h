@@ -1,3 +1,15 @@
+/*
+ANTUTU-RESULTS EVER-TOPS
+
+ver	swap	vmax		#clean			#ksm+zram
+2.0	1	0x17		8451[817,599]		8276[803,630]
+2.0 	1	0x1B 		8302 [806,636]		8466[812,653]
+2.0	1	0x12 		8323[814,624] 		8287[819,641]
+2.1	1	0x12		?[,]			8593[811,631], 8242,8498
+2.1	1	0x1B		?[,]			8369[798,582]
+2.1	2	0x1B		?[,]			8422[820,626]
+*/
+
 /*****************************************************************************
 *
 * Filename:
@@ -99,7 +111,7 @@
 #define VOLTAGE_0_UV_11 (0x08)
 #define VOLTAGE_1_UV_11 (0x0F)
 #define VOLTAGE_2_UV_11 (0x12)
-#define VOLTAGE_3_UV_11 (0x12) // antutu 8296[814,624]/? (clean/ksm+zram) [] -> top/top values!
+#define VOLTAGE_3_UV_11 (0x12) // antutu 8323[814,624]/? (clean/ksm+zram) [] -> top/top values!
 // result: slow, bad response, may be not related to voltages, but...
 
 // sleep, baby sleep...
@@ -127,11 +139,11 @@
 
 // this are the actual used values
 // todo: get lowest TOP-Voltage with no antutu score decrease; test if score is heigher with stock value
-#define VOLTAGE_S VOLTAGE_S_UV_11
-#define VOLTAGE_0 VOLTAGE_0_UV_11
-#define VOLTAGE_1 VOLTAGE_1_UV_11
-#define VOLTAGE_2 VOLTAGE_2_UV_11
-#define VOLTAGE_3 VOLTAGE_3_UV_11
+#define VOLTAGE_S VOLTAGE_S_UV_12
+#define VOLTAGE_0 VOLTAGE_0_UV_12
+#define VOLTAGE_1 VOLTAGE_1_UV_12
+#define VOLTAGE_2 VOLTAGE_2_UV_12
+#define VOLTAGE_3 VOLTAGE_3_UV_12
 
 #endif // __VOLTAGES_H__
 

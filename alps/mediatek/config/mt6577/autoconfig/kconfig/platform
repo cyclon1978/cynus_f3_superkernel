@@ -2560,8 +2560,8 @@ CONFIG_LOCAL_WDT=y
 CONFIG_RAMDISK_OFFSET=0x1100000
 
 # new in kernel 3.4.5, enable later!
-# CONFIG_DYNAMIC_PAGE_WRITEBACK is not set
-# CONFIG_DYNAMIC_FSYNC is not set
+CONFIG_DYNAMIC_PAGE_WRITEBACK=y
+CONFIG_DYNAMIC_FSYNC=y
 
 # enable zram feature
 # may not be required
