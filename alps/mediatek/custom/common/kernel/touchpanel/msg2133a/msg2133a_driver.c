@@ -132,7 +132,7 @@ static void tpd_late_resume(struct early_suspend *handler);
 #endif 
 
 #ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
-static int s2w_st_flag=0;
+//static int s2w_st_flag=0;
 #endif
 
  

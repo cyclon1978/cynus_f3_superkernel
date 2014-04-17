@@ -127,6 +127,12 @@ ver	swap	vmax		#clean			#ksm+zram
 #define VOLTAGE_2_DEF (0x13)
 #define VOLTAGE_3_DEF (0x17)
 
+// sleep, baby sleep... with best performance
+#define VOLTAGE_S_UV_13 (0x02)
+#define VOLTAGE_0_UV_13 (0x08)
+#define VOLTAGE_1_UV_13 (0x0F)
+#define VOLTAGE_2_UV_13 (0x13)
+#define VOLTAGE_3_UV_13 (0x17) // 1B is absolute maximum but will be capped. antutu 8302[806,636]/8466[812,653] (clean/ksm+zram)
 
 
 // VOLTAGE_S && VOLTAGE_0
@@ -139,11 +145,11 @@ ver	swap	vmax		#clean			#ksm+zram
 
 // this are the actual used values
 // todo: get lowest TOP-Voltage with no antutu score decrease; test if score is heigher with stock value
-#define VOLTAGE_S VOLTAGE_S_UV_12
-#define VOLTAGE_0 VOLTAGE_0_UV_12
-#define VOLTAGE_1 VOLTAGE_1_UV_12
-#define VOLTAGE_2 VOLTAGE_2_UV_12
-#define VOLTAGE_3 VOLTAGE_3_UV_12
+#define VOLTAGE_S VOLTAGE_S_UV_13
+#define VOLTAGE_0 VOLTAGE_0_UV_13
+#define VOLTAGE_1 VOLTAGE_1_UV_13
+#define VOLTAGE_2 VOLTAGE_2_UV_13
+#define VOLTAGE_3 VOLTAGE_3_UV_13
 
 #endif // __VOLTAGES_H__
 
