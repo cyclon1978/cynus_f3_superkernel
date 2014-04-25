@@ -1,3 +1,6 @@
+on early-init
+ mkdir /storage/usbotg 0000 system system
+
 on fs
 # mount mtd partitions
 
@@ -64,6 +67,12 @@ on post-fs-data
  mkdir /data/misc/dhcp 0770 dhcp dhcp
  chown dhcp dhcp /data/misc/dhcp
  chown wifi wifi /data/misc/wifi
+
+# CTP
+ chmod 0666 /dev/msg2133_fts_isp
+
+# LCM
+ chmod 0666 /dev/lcm_isp
 
 # Load WiFi Driver
  insmod /system/lib/modules/wlan.ko

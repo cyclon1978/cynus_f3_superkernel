@@ -170,6 +170,8 @@ static unsigned int g_limited_min_freq;
 
 //Bindass-Boost overclock manage
 static unsigned int Base_freq = 0x4CA0;
+static unsigned int ocm_default_freq = 0x4CA0;
+static unsigned int ocm_overclock_freq = 0x4CA0;
 static bool BBoost_Overclock = false;
 
 static int g_ramp_down_count = 0;
@@ -301,12 +303,18 @@ static unsigned int mtk_cpufreq_get(unsigned int cpu)
 //Bboost overclock status manager
 void BBoost_Overclcock_manage(unsigned int overclock_freq)
 {
-  if(overclock_freq == 0x51e0){
+  if(overclock_freq > ocm_default_freq){
      BBoost_Overclock = true;
-     Base_freq = 0x51e0;
+     if (Base_freq < overclock_freq) {
+       Base_freq = overclock_freq;
+     }
+     if (ocm_overclock_freq < overclock_freq) {
+       ocm_overclock_freq = overclock_freq;
+     }
+     // Base_freq = 0x51e0;
   }else {
      BBoost_Overclock = false;
-     Base_freq = 0x4ca0;
+     Base_freq = ocm_default_freq;
   }
 }
 
@@ -931,7 +939,7 @@ void mtk_cpufreq_early_suspend(struct early_suspend *h)
     
 // restore stock clock when screen get off
     if(BBoost_Overclock){
-       Base_freq = 0x4ca0;
+       Base_freq = ocm_default_freq;
     }
 
     if (get_chip_ver() >= CHIP_6575_E2 && get_chip_ver() < CHIP_6577_E1)
@@ -966,7 +974,7 @@ void mtk_cpufreq_late_resume(struct early_suspend *h)
     g_is_sreen_off = false;
 // overclock clock when screen get on and overclock on 
     if(BBoost_Overclock){
-       Base_freq = 0x51e0;
+       Base_freq = ocm_overclock_freq;
     }
 
     if (get_chip_ver() >= CHIP_6575_E2 && get_chip_ver() < CHIP_6577_E1)

@@ -382,7 +382,7 @@ config CLEANCACHE
 
 config DYNAMIC_PAGE_WRITEBACK
 	bool "Dynamically manage the dirty page writebacks during suspend/resume"
-	default n
+	default Y
 	help
 	  This feature allows to use different dirty page writeback intervals
 	  when the system is suspended and when the system has been resumed.

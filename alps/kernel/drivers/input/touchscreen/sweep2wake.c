@@ -192,7 +192,7 @@ void detect_sweep2wake(int sweep_coord, int sweep_height, unsigned long time, in
     //left->right
     if ((scr_suspended == true) && (sweep2wake > 0) && sweep_height > s2w_height_adjust) {
         printk("[sweep2wake]:left to right x,y(%d,%d) jiffies:%lu\n", sweep_coord, sweep_height, time);
-        if (sweep_coord < 100) { // 80
+        if (sweep_coord < 100) {
         tripon = 1;
         triptime = time;
         } else if (tripon == 1 && sweep_coord > 100 && time - triptime < 25) {
@@ -206,7 +206,7 @@ void detect_sweep2wake(int sweep_coord, int sweep_height, unsigned long time, in
     //right->left
     } else if ((scr_suspended == false) && (sweep2wake > 1) && sweep_height > s2w_height_adjust) {
         printk("[sweep2wake]:right to left x,y(%d,%d) jiffies:%lu\n", sweep_coord, sweep_height, time);
-        if (sweep_coord >= 400) { // 400
+        if (sweep_coord >= 400) { // change by me
             tripoff = 1;
             triptime = time;
         } else if (tripoff == 1 && sweep_coord < 400 && time - triptime < 25) {

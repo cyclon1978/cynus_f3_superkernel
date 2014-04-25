@@ -77,7 +77,9 @@ u32 pinSet[3][8] = {
                     }
                    };
 
-	if (currSensorName && (0 == strcmp(SENSOR_DRVNAME_OV8825_MIPI_RAW,currSensorName)))
+    if ((currSensorName && (0 == strcmp(SENSOR_DRVNAME_OV8825_MIPI_RAW,currSensorName)))
+	|| (currSensorName && (0 == strcmp(SENSOR_DRVNAME_OV8826_MIPI_RAW,currSensorName)))
+	|| (currSensorName && (0 == strcmp(SENSOR_DRVNAME_OV8827_MIPI_RAW,currSensorName))))
 	{
             pinSet[0][6] = GPIO_OUT_ONE;
             pinSet[0][7] = GPIO_OUT_ZERO;

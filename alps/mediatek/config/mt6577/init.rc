@@ -875,7 +875,7 @@ service ril-daemon /system/bin/rild
     class core
     socket rild stream 660 root radio
     socket rild2 stream 660 root radio
-    socket rild-debug stream 660 radio system
+    socket rild-debug stream 666 radio system
     socket rild-mtk-ut stream 660 radio net_bt
     socket rild-mtk-ut-2 stream 660 radio net_bt
     socket rild-mtk-modem stream 660 radio system

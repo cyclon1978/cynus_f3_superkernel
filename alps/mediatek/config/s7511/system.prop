@@ -85,7 +85,7 @@ sys.ipo.pwrdncap=2
 ro.sys.usb.storage.type=mtp,mass_storage
 
 # USB BICR function
-ro.sys.usb.bicr=no
+ro.sys.usb.bicr=yes
 
 # USB Charge only function
 ro.sys.usb.charging.only=yes
@@ -93,6 +93,3 @@ ro.sys.usb.charging.only=yes
 # audio
 ro.camera.sound.forced=0
 ro.audio.silent=0
-
-net.tinno.bt.name=FLY IQ445
-persist.service.adb.enable=0
