@@ -1,4 +1,4 @@
-export PATH=$PATH:~/projects/tools/arm-linux-androideabi-4.6/bin
+export PATH=~/projects/tools/arm-linux-androideabi-4.6/bin:~/projects/tools/lz4:$PATH
 export ARCH=arm
 export SUBARCH=arm
 export CROSS_COMPILE=arm-linux-androideabi-
