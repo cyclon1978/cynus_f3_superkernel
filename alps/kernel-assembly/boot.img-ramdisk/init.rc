@@ -64,8 +64,12 @@ loglevel 5
     export ANDROID_ROOT /system
     export ANDROID_ASSETS /system/app
     export ANDROID_DATA /data
+    export ANDROID_STORAGE /storage
+
+    # backward compatibility?
     export EXTERNAL_STORAGE /storage/sdcard0
     export SECONDARY_STORAGE /storage/sdcard1
+
     export ASEC_MOUNTPOINT /mnt/asec
     export LOOP_MOUNTPOINT /mnt/obb
 
@@ -524,8 +528,7 @@ on post-fs-data
     chown root diag /sys/bus/platform/drivers/eint/current_eint
 
     # for ppp options file
-    mkdir /data/misc/ppp
-    chmod 0777 /data/misc/ppp
+    mkdir /data/misc/ppp 0777 bluetooth net_bt
 
     # Android SEC related device nodes
     insmod /system/lib/modules/sec.ko
