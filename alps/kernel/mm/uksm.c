@@ -166,7 +166,7 @@ static int is_full_zero(const void *s1, size_t len)
 #else
 static int is_full_zero(const void *s1, size_t len)
 {
-	unsigned const char *src = s1;
+	unsigned long *src = s1;
 	int i;
 
 	len /= sizeof(*src);
@@ -5620,3 +5620,4 @@ module_init(uksm_init)
 #else
 late_initcall(uksm_init);
 #endif
+

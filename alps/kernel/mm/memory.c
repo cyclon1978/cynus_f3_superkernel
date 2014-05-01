@@ -154,6 +154,7 @@ static int __init init_zero_pfn(void)
 core_initcall(init_zero_pfn);
 
 
+
 #if defined(SPLIT_RSS_COUNTING)
 
 void sync_mm_rss(struct mm_struct *mm)
@@ -936,6 +937,8 @@ copy_one_pte(struct mm_struct *dst_mm, struct mm_struct *src_mm,
 			rss[MM_ANONPAGES]++;
 		else
 			rss[MM_FILEPAGES]++;
+
+		/* Should return NULL in vm_normal_page() */
 		uksm_bugon_zeropage(pte);
 	} else {
 		uksm_map_zero_page(pte);
@@ -1703,7 +1706,7 @@ int __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
 
 	VM_BUG_ON(!!pages != !!(gup_flags & FOLL_GET));
 
-	/* 
+	/*
 	 * Require read or write permissions.
 	 * If FOLL_FORCE is set, we only require the "MAY" flags.
 	 */
@@ -1750,7 +1753,7 @@ int __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
 				page = vm_normal_page(vma, start, *pte);
 				if (!page) {
 					if (!(gup_flags & FOLL_DUMP) &&
-					     is_zero_pfn(pte_pfn(*pte)))
+					    (is_zero_pfn(pte_pfn(*pte))))
 						page = pte_page(*pte);
 					else {
 						pte_unmap(pte);

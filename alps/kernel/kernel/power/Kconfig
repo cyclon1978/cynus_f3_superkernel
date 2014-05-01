@@ -17,6 +17,7 @@ config SUSPEND_FREEZER
 	  done, no tasks are frozen for suspend to RAM/standby.
 
 	  Turning OFF this setting is NOT recommended! If in doubt, say Y.
+ 
 
 config HAS_WAKELOCK
 	bool
