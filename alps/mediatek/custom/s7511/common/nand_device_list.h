@@ -1,4 +1,3 @@
-
 #ifndef __NAND_DEVICE_LIST_H__
 #define __NAND_DEVICE_LIST_H__
 
