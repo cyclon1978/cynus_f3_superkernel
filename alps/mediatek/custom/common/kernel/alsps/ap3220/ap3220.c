@@ -40,6 +40,7 @@
 #include <cust_eint.h>
 #include <cust_alsps.h>
 #include "ap3220.h"
+#include <linux/proxy_sensor.h>
 /******************************************************************************
  * configuration
 *******************************************************************************/
@@ -1885,6 +1886,78 @@ static void __exit ap3220_exit(void)
 	APS_FUN();
 	platform_driver_unregister(&ap3220_alsps_driver);
 }
+/*----------------------------------------------------------------------------*/
+
+/*
+ * returns 1 if proximity sensor is free; 0 if it is blocked and -1 if the sensor gets a time out
+*/
+int get_ps_value(void)
+{
+        struct i2c_client *my_obj_client = ap3220_i2c_client;
+
+	printk("[SWEEP2WAKE]: get_ps_value called \n");
+
+	long err = 0;
+	int dat = -1;
+
+	ap3220_init_client(my_obj_client);
+
+	struct ap3220_priv *obj = i2c_get_clientdata(my_obj_client);  
+	if(!obj)
+	{
+		printk("[SWEEP2WAKE]: get_ps_value step 1 failed \n");
+		return -1;
+	}	
+
+	// enable
+	if((err = ap3220_enable_ps(obj->client, 1)))
+	{
+		printk("[SWEEP2WAKE]: get_ps_value: enable ps fail: %d \n", err); 
+		return -1;
+	}				
+	set_bit(CMC_BIT_PS, &obj->enable);
+
+	if((err = ap3220_read_ps(obj->client, &obj->ps)))
+	{
+		printk("[SWEEP2WAKE]: get_ps_value step 2 failed \n");
+		return -1;
+	}
+	
+	int idx;
+        int firstValue = -1;
+	for (idx = 0; idx < 10; idx++) {
+		dat = ap3220_get_ps_value(obj, obj->ps);
+		if (dat != -1) {
+			// got a proximity value
+			if (firstValue == -1) {
+				firstValue = dat;
+			} else if (firstValue != dat) {
+				// early exit
+			  	break;
+			}
+		}
+		printk("[SWEEP2WAKE]: get_ps_value: proximity value is: %d \n", dat); 
+       		msleep(25); // wait for ps to enable	
+	}
+			
+	printk("[SWEEP2WAKE]: get_ps_value: proximity value is: %d \n", dat); 
+
+	// disable
+	if((err = ap3220_enable_ps(obj->client, 0)))
+	{
+		printk("[SWEEP2WAKE]: get_ps_value: disable ps fail: %d \n", err); 
+		return -1;
+	}
+	clear_bit(CMC_BIT_PS, &obj->enable);
+
+	return dat;
+}
+
+int pocket_detection_check(void)
+{
+	return get_ps_value();	
+}
+
 /*----------------------------------------------------------------------------*/
 module_init(ap3220_init);
 module_exit(ap3220_exit);

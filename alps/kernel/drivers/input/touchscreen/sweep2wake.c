@@ -30,6 +30,7 @@
 #include <linux/init.h>
 #include <linux/err.h>
 #include <linux/input/sweep2wake.h>
+#include <linux/proxy_sensor.h>
 
 /* Tuneables */
 #define DEBUG                   1
@@ -44,6 +45,7 @@
 bool is_single_touch(void);
 
 /* Resources */
+int pocket_detect = 1;
 int sweep2wake = 2;
 int s2w_st_flag = 0;
 int doubletap2wake = 1;
@@ -57,6 +59,7 @@ static DEFINE_MUTEX(pwrkeyworklock);
 static int s2w_start_posn = DEFAULT_S2W_X_B1;
 static int s2w_mid_posn = DEFAULT_S2W_X_B2;
 static int s2w_end_posn = (DEFAULT_S2W_X_MAX - DEFAULT_S2W_X_FINAL);
+//static int s2w_height_adjust = 854; 
 static int s2w_height_adjust = 829; // CHANGE-BY-ME: 830 is in dmesg for button sweep -> > 829 fits
 static int s2w_threshold = DEFAULT_S2W_X_FINAL;
 //static int s2w_max_posn = DEFAULT_S2W_X_MAX;
@@ -128,25 +131,35 @@ printk("[SWEEP2WAKE]: ressetting in s2w\n");
 
 /* PowerKey work func */
 static void sweep2wake_presspwr(struct work_struct * sweep2wake_presspwr_work) {
+	
 	if (!mutex_trylock(&pwrkeyworklock))
-                return;
-printk("[SWEEP2WAKE]: pressing power\n");
-        reset_sweep2wake();
-	input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 1);
-	input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
-	msleep(DEFAULT_S2W_PWRKEY_DUR);
-	input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 0);
-	input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
-	msleep(DEFAULT_S2W_PWRKEY_DUR);
-        mutex_unlock(&pwrkeyworklock);
-	return;
+           	     return;
+		printk("[SWEEP2WAKE]: pressing power\n");
+        	reset_sweep2wake();
+		input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 1);
+		input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
+		msleep(DEFAULT_S2W_PWRKEY_DUR);
+		input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 0);
+		input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
+		msleep(DEFAULT_S2W_PWRKEY_DUR);
+        	mutex_unlock(&pwrkeyworklock);
+		return;
+	
 }
 static DECLARE_WORK(sweep2wake_presspwr_work, sweep2wake_presspwr);
 
 /* PowerKey trigger */
 void sweep2wake_pwrtrigger(void) {
-printk("[SWEEP2WAKE]: power triggered\n");
-	schedule_work(&sweep2wake_presspwr_work);
+	int pocket_mode = 1;
+ 	if (scr_suspended == true && pocket_detect == 1){
+ 		pocket_mode = pocket_detection_check();
+ 		printk("[SWEEP2WAKE]: inside pocket mode check \n");
+	}
+	printk("[SWEEP2WAKE]: pocket mode %d\n" ,pocket_mode);
+ 	if (pocket_mode == 1 || pocket_detect == 0) {
+		printk("[SWEEP2WAKE]: power triggered\n");
+		schedule_work(&sweep2wake_presspwr_work);
+	}
         return;
 }
 
@@ -206,7 +219,7 @@ void detect_sweep2wake(int sweep_coord, int sweep_height, unsigned long time, in
     //right->left
     } else if ((scr_suspended == false) && (sweep2wake > 1) && sweep_height > s2w_height_adjust) {
         printk("[sweep2wake]:right to left x,y(%d,%d) jiffies:%lu\n", sweep_coord, sweep_height, time);
-        if (sweep_coord >= 400) { // change by me
+        if (sweep_coord >= 400) {  // change by me
             tripoff = 1;
             triptime = time;
         } else if (tripoff == 1 && sweep_coord < 400 && time - triptime < 25) {
@@ -385,6 +398,23 @@ static ssize_t sweep2wake_store(struct kobject *kobj,
 	return count;
 }
 
+static ssize_t pocket_detect_show(struct kobject *kobj,
+	struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%i\n", pocket_detect);
+}
+
+static ssize_t pocket_detect_store(struct kobject *kobj,
+	struct kobj_attribute *attr, const char *buf, size_t count)
+{
+	unsigned int data;
+	if(sscanf(buf, "%i\n", &data) == 1)
+		pocket_detect = data;
+	else
+		pr_info("%s: unknown input!\n", __FUNCTION__);
+	return count;
+}
+
 static ssize_t doubletap2wake_show(struct kobject *kobj,
 	struct kobj_attribute *attr, char *buf)
 {
@@ -444,6 +474,12 @@ static struct kobj_attribute sweep2wake_attribute =
 		sweep2wake_show,
 		sweep2wake_store);
 
+static struct kobj_attribute pocket_detect_attribute =
+	__ATTR(pocket_detect,
+		0666,
+		pocket_detect_show,
+		pocket_detect_store);
+
 static struct kobj_attribute doubletap2wake_attribute =
 	__ATTR(doubletap2wake,
 		0666,
@@ -458,6 +494,7 @@ static struct attribute *s2w_parameters_attrs[] =
 		&s2w_threshold_attribute.attr,
 		&s2w_swap_coord_attribute.attr,
 		&sweep2wake_attribute.attr,
+		&pocket_detect_attribute.attr,
 		&doubletap2wake_attribute.attr,
 		&s2w_height_adjust_attribute.attr,
 		NULL,
