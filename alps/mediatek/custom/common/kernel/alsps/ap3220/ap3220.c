@@ -1889,44 +1889,47 @@ static void __exit ap3220_exit(void)
 /*----------------------------------------------------------------------------*/
 
 /*
+ * setups the proximity sensor or disables it
+*/
+int setup_ps(int enable)
+{
+	if (ap3220_ps_operate(ap3220_obj, SENSOR_ENABLE, &enable, sizeof(int),
+		NULL, 0, NULL) != 0) 
+	{
+		printk("[SWEEP2WAKE]: setup_ps step 1 failed \n");
+		return -1;
+	}
+
+	return 0;
+}
+
+int sensor_get_the_value(void) {
+	int out_size;
+	hwm_sensor_data sensor_data;
+	memset(&sensor_data, 0, sizeof(sensor_data));
+
+	if (ap3220_ps_operate(ap3220_obj, SENSOR_GET_DATA, NULL, 0,
+		&sensor_data, sizeof(hwm_sensor_data), &out_size) != 0) 
+	{
+		printk("[SWEEP2WAKE]: setup_ps step 1 failed \n");
+		return -1;
+	}
+
+	return sensor_data.values[0];
+}
+
+/*
  * returns 1 if proximity sensor is free; 0 if it is blocked and -1 if the sensor gets a time out
 */
 int get_ps_value(void)
 {
-        struct i2c_client *my_obj_client = ap3220_i2c_client;
+	setup_ps(1);
 
-	printk("[SWEEP2WAKE]: get_ps_value called \n");
-
-	long err = 0;
-	int dat = -1;
-
-	ap3220_init_client(my_obj_client);
-
-	struct ap3220_priv *obj = i2c_get_clientdata(my_obj_client);  
-	if(!obj)
-	{
-		printk("[SWEEP2WAKE]: get_ps_value step 1 failed \n");
-		return -1;
-	}	
-
-	// enable
-	if((err = ap3220_enable_ps(obj->client, 1)))
-	{
-		printk("[SWEEP2WAKE]: get_ps_value: enable ps fail: %d \n", err); 
-		return -1;
-	}				
-	set_bit(CMC_BIT_PS, &obj->enable);
-
-	if((err = ap3220_read_ps(obj->client, &obj->ps)))
-	{
-		printk("[SWEEP2WAKE]: get_ps_value step 2 failed \n");
-		return -1;
-	}
-	
+	int dat = .1;	
 	int idx;
         int firstValue = -1;
 	for (idx = 0; idx < 10; idx++) {
-		dat = ap3220_get_ps_value(obj, obj->ps);
+		dat = sensor_get_the_value();
 		if (dat != -1) {
 			// got a proximity value
 			if (firstValue == -1) {
@@ -1942,13 +1945,7 @@ int get_ps_value(void)
 			
 	printk("[SWEEP2WAKE]: get_ps_value: proximity value is: %d \n", dat); 
 
-	// disable
-	if((err = ap3220_enable_ps(obj->client, 0)))
-	{
-		printk("[SWEEP2WAKE]: get_ps_value: disable ps fail: %d \n", err); 
-		return -1;
-	}
-	clear_bit(CMC_BIT_PS, &obj->enable);
+	setup_ps(0);
 
 	return dat;
 }
