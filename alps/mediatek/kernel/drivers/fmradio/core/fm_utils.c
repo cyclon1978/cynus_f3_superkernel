@@ -154,7 +154,7 @@ static fm_s32 fm_lock_lock(struct fm_lock *thiz)
     }
 
     sem = (struct semaphore*)thiz->priv;
-    WCN_DBG(FM_DBG | MAIN, "%s --->lock, cnt=%d, pid=%d\n", thiz->name, (int)sem->count, task->pid);
+    WCN_DBG(FM_NTC | MAIN, "%s --->lock, cnt=%d, pid=%d\n", thiz->name, (int)sem->count, task->pid);
     return 0;
 }
 
@@ -165,7 +165,7 @@ static fm_s32 fm_lock_unlock(struct fm_lock *thiz)
     FMR_ASSERT(thiz);
     FMR_ASSERT(thiz->priv);
     sem = (struct semaphore*)thiz->priv;
-    WCN_DBG(FM_DBG | MAIN, "%s <---unlock, cnt=%d, pid=%d\n", thiz->name, (int)sem->count + 1, task->pid);
+    WCN_DBG(FM_NTC | MAIN, "%s <---unlock, cnt=%d, pid=%d\n", thiz->name, (int)sem->count + 1, task->pid);
     up((struct semaphore*)thiz->priv);
     return 0;
 }

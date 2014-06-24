@@ -1276,11 +1276,6 @@ int mtk_wcn_stp_psm_notify_stp(const MTKSTP_PSM_ACTION_T action){
     return stp_psm_notify_stp(STP_PSM_CORE(stp_core_ctx), action);
 }
 
-int mtk_wcn_stp_set_psm_state(MTKSTP_PSM_STATE_T state){
-    return stp_psm_set_state(STP_PSM_CORE(stp_core_ctx), state);
-}
-
-
 /*****************************************************************************
 * FUNCTION
 *  mtk_wcn_stp_psm_enable

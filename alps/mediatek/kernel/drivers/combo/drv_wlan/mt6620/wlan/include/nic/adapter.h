@@ -13,6 +13,10 @@
 
 /*
 ** $Log: adapter.h $
+**
+** 11 15 2012 cp.wu
+** [ALPS00382763] N820_JB:[WIFI]N820JB WLAN ±K???,«ÝÉó?¬y¥\¯Ó¤j
+** when being disconnected, set flag to stop join retrial.
 ** 
 ** 08 31 2012 yuche.tsai
 ** [ALPS00349585] [6577JB][WiFi direct][KE]Establish p2p connection while both device have connected to AP previously,one device reboots automatically with KE
@@ -667,6 +671,8 @@ typedef struct _CONNECTION_SETTINGS_T {
     UINT_8                          aucBSSID[MAC_ADDR_LEN];
 
     BOOLEAN                         fgIsConnReqIssued;
+    BOOLEAN                         fgIsDisconnectedByNonRequest;
+
     UINT_8                          ucSSIDLen;
     UINT_8                          aucSSID[ELEM_MAX_LEN_SSID];
 

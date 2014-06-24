@@ -1592,6 +1592,12 @@ kalIndicateStatusAndComplete (
         (P_PARAM_PMKID_CANDIDATE_LIST_T) (pStatus + 1);
     PARAM_MAC_ADDRESS arBssid;
     struct cfg80211_scan_request *prScanRequest = NULL;
+    PARAM_SSID_T ssid;
+    struct ieee80211_channel *prChannel = NULL;
+    struct cfg80211_bss *bss;
+    UINT_8 ucChannelNum;
+    P_BSS_DESC_T prBssDesc = NULL;
+
     GLUE_SPIN_LOCK_DECLARATION();
 
     kalMemZero(arBssid, MAC_ADDR_LEN);
@@ -1617,8 +1623,6 @@ kalIndicateStatusAndComplete (
 
         do {
             /* print message on console */
-            PARAM_SSID_T ssid;
-
             wlanQueryInformation(prGlueInfo->prAdapter,
                 wlanoidQuerySsid,
                 &ssid,
@@ -1634,6 +1638,38 @@ kalIndicateStatusAndComplete (
         } while(0);
 
         if(prGlueInfo->fgIsRegistered == TRUE) {
+            /* retrieve channel */
+            ucChannelNum = wlanGetChannelNumberByNetwork(prGlueInfo->prAdapter, NETWORK_TYPE_AIS_INDEX);
+            if(ucChannelNum <= 14) {
+                prChannel = ieee80211_get_channel(priv_to_wiphy(prGlueInfo), ieee80211_channel_to_frequency(ucChannelNum, IEEE80211_BAND_2GHZ));
+            }
+            else {
+                prChannel = ieee80211_get_channel(priv_to_wiphy(prGlueInfo), ieee80211_channel_to_frequency(ucChannelNum, IEEE80211_BAND_5GHZ));
+            }
+
+            /* ensure BSS exists */
+            bss = cfg80211_get_bss(priv_to_wiphy(prGlueInfo), prChannel, arBssid,
+                    ssid.aucSsid, ssid.u4SsidLen, 
+                    WLAN_CAPABILITY_ESS, WLAN_CAPABILITY_ESS);
+
+            if(bss == NULL) {
+                /* create BSS on-the-fly */
+                prBssDesc = wlanGetTargetBssDescByNetwork(prGlueInfo->prAdapter, NETWORK_TYPE_AIS_INDEX);
+
+                if(prBssDesc != NULL) {
+                    bss = cfg80211_inform_bss(priv_to_wiphy(prGlueInfo),
+                        prChannel,
+                        arBssid,
+                        0,                                      /* TSF */
+                        WLAN_CAPABILITY_ESS,
+                        prBssDesc->u2BeaconInterval,            /* beacon interval */
+                        prBssDesc->aucIEBuf,                    /* IE */
+                        prBssDesc->u2IELength,                  /* IE Length */
+                        RCPI_TO_dBm(prBssDesc->ucRCPI) * 100,   /* MBM */
+                        GFP_KERNEL);
+                }
+            }
+
             /* CFG80211 Indication */
             if(eStatus == WLAN_STATUS_MEDIA_CONNECT 
                     && prGlueInfo->prDevHandler->ieee80211_ptr->sme_state == CFG80211_SME_CONNECTING) {
@@ -1648,23 +1684,12 @@ kalIndicateStatusAndComplete (
             }
             else if(eStatus == WLAN_STATUS_ROAM_OUT_FIND_BEST
                     && prGlueInfo->prDevHandler->ieee80211_ptr->sme_state == CFG80211_SME_CONNECTED) {
-                struct ieee80211_channel *prChannel = NULL;
-                UINT_8 ucChannelNum = wlanGetChannelNumberByNetwork(prGlueInfo->prAdapter, NETWORK_TYPE_AIS_INDEX);
-
-                if(ucChannelNum <= 14) {
-                    prChannel = ieee80211_get_channel(priv_to_wiphy(prGlueInfo), ieee80211_channel_to_frequency(ucChannelNum, IEEE80211_BAND_2GHZ));
-                }
-                else {
-                    prChannel = ieee80211_get_channel(priv_to_wiphy(prGlueInfo), ieee80211_channel_to_frequency(ucChannelNum, IEEE80211_BAND_5GHZ));
-                }
-
-                cfg80211_roamed(prGlueInfo->prDevHandler, 
-                        prChannel,
-                        arBssid,
+                cfg80211_roamed_bss(prGlueInfo->prDevHandler, 
+                        bss,
                         prGlueInfo->aucReqIe,
                         prGlueInfo->u4ReqIeLength,
                         prGlueInfo->aucRspIe,
-                        prGlueInfo->u4RspIeLength,                        
+                        prGlueInfo->u4RspIeLength,
                         GFP_KERNEL);
             }
         }
@@ -3326,6 +3351,11 @@ kalScanDone(
     )
 {
     ASSERT(prGlueInfo);
+
+    P_AIS_FSM_INFO_T prAisFsmInfo;
+    prAisFsmInfo = &(prGlueInfo->prAdapter->rWifiVar.rAisFsmInfo);
+
+    cnmTimerStopTimer(prGlueInfo->prAdapter, &prAisFsmInfo->rScanDoneTimer);
 
     /* check for system configuration for generating error message on scan list */
     wlanCheckSystemConfiguration(prGlueInfo->prAdapter);

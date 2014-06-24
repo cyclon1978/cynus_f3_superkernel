@@ -21,6 +21,7 @@
 #define IOCTL	(1 << (BASE+13))
 #define READ_	(1 << (BASE+14))
 #define CLOSE	(1 << (BASE+15))
+#define CQI     (1 << (BASE+16))
 #define ALL		0xfffffff0
 
 //DBG level

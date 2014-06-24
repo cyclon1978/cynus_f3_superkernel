@@ -38,11 +38,6 @@
 #include "mtkfb.h"
 #include "mtkfb_console.h"
 
-//edit by Magnum 2012-11-02
-#include <linux/miscdevice.h>
-#include <linux/string.h>
-#define LCM_DEBUG_SWITCH
-
 #define INIT_FB_AS_COLOR_BAR    (0)
 
 static u32 MTK_FB_XRES  = 0;
@@ -703,8 +698,6 @@ static int mtkfb_update_screen(struct fb_info *info)
 	sem_early_suspend_cnt--;
     if (is_early_suspended) goto End;
 
-    DISP_WaitForLCDNotBusy();
-
 	if(DISP_IsInOverlayMode())
 	{
 		if(DISP_IsLCDBusy())
@@ -990,8 +983,6 @@ static int mtkfb_pan_display_impl(struct fb_var_screeninfo *var, struct fb_info 
 
 			if (!dal_shown)
 				LCD_CHECK_RET(LCD_LayerEnable((FB_LAYER+1), 0));
-			else
-				DAL_RestoreAEE();
 		}
 		else
 		{
@@ -1023,9 +1014,6 @@ static int mtkfb_pan_display_impl(struct fb_var_screeninfo *var, struct fb_info 
 					offset_y=fb_layer_context.src_height/2;
 					 break;
 				default :
-					r_1st=0; landscape=0;
-					offset_x=fb_layer_context.src_width/2;
-					offset_y=0;
 					break;
 			}
 
@@ -1503,11 +1491,7 @@ static int mtkfb_set_overlay_layer(struct fb_info *info, struct fb_overlay_layer
         layerpitch = 2;
 		layerbpp = 24;
         break;
-	case MTK_FB_FORMAT_YUY2:
-		eFormat = LCD_LAYER_FORMAT_YUY2;
-		layerpitch = 2;
-		layerbpp = 24;
-		break;    
+    
     case MTK_FB_FORMAT_RGB565:
         eFormat = LCD_LAYER_FORMAT_RGB565;
         layerpitch = 2;
@@ -2819,8 +2803,6 @@ static int mtkfb_fbinfo_init(struct fb_info *info)
     var.red.offset   = 11; var.red.length   = 5;
     var.green.offset =  5; var.green.length = 6;
     var.blue.offset  =  0; var.blue.length  = 5;
-    var.width  = DISP_GetActiveWidth();
-    var.height = DISP_GetActiveHeight();
 
     var.activate = FB_ACTIVATE_NOW;
 
@@ -3104,73 +3086,7 @@ void disp_get_fb_address(UINT32 *fbVirAddr, UINT32 *fbPhysAddr)
     *fbPhysAddr =(UINT32)fbdev->fb_pa_base + mtkfb_fbi->var.yoffset * mtkfb_fbi->fix.line_length;
 }
 
-#ifdef LCM_DEBUG_SWITCH
-static int lcm_isp_open(struct inode *inode, struct file *filp){ 
-	MTKFB_LOG("[Magnum] lcm_isp_open\n");	
-	return 0;
-}
 
-static int lcm_isp_release(struct inode *inode, struct file *filp){ 
-	MTKFB_LOG("[Magnum] lcm_isp_release\n");	
-	return 0;
-}
-
-static ssize_t lcm_isp_read(struct file *file, char __user *buf, size_t count, loff_t *offset)
-{	
-	//ret = copy_to_user(buf,&acc, sizeof(acc));
-	//TPD_DEBUG("");
-	return -1;
-}
-static ssize_t lcm_isp_write(struct file *file, char __user *buf, size_t count, loff_t *offset)
-{	
-	printk("[Magnum]lcm_isp_write\n");
-	int ret;
-    char *tmp;
-	printk("[Magnum]lcm_isp_write count == %d\n",count);
-	printk("[Magnum]lcm_isp_write len == %d\n",strlen(buf));
-    tmp = kmalloc(count, GFP_KERNEL);
-    printk("[Magnum]lcm_isp_write len == %d\n",strlen(buf));
-    if (tmp == NULL)
-        return -ENOMEM;
-
-    if (copy_from_user(tmp, buf, count)) {
-        return -EFAULT;
-    }
-	printk("[Magnum]lcm_isp_write len == %d\n",strlen(tmp));
-	printk("get lcm debug buffer == %s ",tmp);
-	
-	GetDebugInfo(tmp);
-	return -1;
-}
-static const struct file_operations lcm_isp_fops = {
-	.owner = THIS_MODULE,
-	.read = lcm_isp_read,
-	.write = lcm_isp_write,
-	.open = lcm_isp_open,
-	.release = lcm_isp_release,
-//	.unlocked_ioctl = fts_isp_ioctl,
-};
-
-static struct miscdevice lcm_isp_device = {
-	.minor = MISC_DYNAMIC_MINOR,
-	.name = "lcm_isp",
-	.fops = &lcm_isp_fops,
-};
-#endif
-
-
-//edit by Magnum 2012-7-10
-static ssize_t tinno_lcd_info_show(struct device *dev, 
-		struct device_attribute *attr, char *buf)
-{
-	char  lcdinfo[256] ={ 0};
-	
-	GetLcdInfo(lcdinfo);
-	printk("lcd infomation : %s\n", lcdinfo);
-
-	return sprintf(buf, "%s", lcdinfo);
-}
-static DEVICE_ATTR(lcd_info, S_IRUGO, tinno_lcd_info_show, NULL);
 
 /* Called by LDM binding to probe and attach a new device.
  * Initialization sequence:
@@ -3382,25 +3298,6 @@ static int mtkfb_probe(struct device *dev)
     MSG(INFO, "MTK framebuffer initialized vram=%lu\n", fbdev->fb_size_in_byte);
 	
 	MSG_FUNC_LEAVE();
-
-    //register the attr lcd_info  edit by Magnum 2012-7-10
-	 if (device_create_file(&pdev->dev, &dev_attr_lcd_info)){
-	 	printk("[Magnum] Register lcd_info attr failed...\n");
-	    PRNERR("Register the attributes lcd infomation is failed.");
-    }
-	 else{
-	 	printk("[Magnum] Register lcd_info attr success...\n");
-	 }
-
-	 #ifdef LCM_DEBUG_SWITCH
-     if(misc_register(&lcm_isp_device)){
-         printk("[Magnum] misc register lcm_isp_device error ....\n");
-	 }else{
-
-	 }
-	 #endif
-
-	
     return 0;
 
 cleanup:

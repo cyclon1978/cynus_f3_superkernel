@@ -186,7 +186,7 @@ fm_s32 fm_open(struct fm *fmp)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fmp);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     //makesure fmp->ref >= 0
     fmp->ref = (fmp->ref < 0) ? 0 : fmp->ref;
@@ -217,7 +217,7 @@ fm_s32 fm_close(struct fm *fmp)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fmp);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     fmp->ref--;
 
@@ -246,7 +246,7 @@ fm_s32 fm_rds_read(struct fm *fmp, fm_s8 *dst, fm_s32 len)
 RESTART:
 
     if (FM_EVENT_GET(fmp->rds_event) == FM_RDS_DATA_READY) {
-        FM_LOCK(fm_read_lock);
+        if (FM_LOCK(fm_read_lock)) return (-FM_ELOCK);
 
         if ((left = copy_to_user((void *)dst, fmp->pstRDSData, (unsigned long)copy_len))) {
             WCN_DBG(FM_ALT | MAIN, "fm_read copy failed\n");
@@ -278,7 +278,7 @@ fm_s32 fm_powerup(struct fm *fm, struct fm_tune_parm *parm)
     FMR_ASSERT(fm_low_ops.bi.pwron);
     FMR_ASSERT(fm_low_ops.bi.pwrupseq);
     FMR_ASSERT(fm_low_ops.bi.low_pwr_wa);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     //for normal case
     if (fm->chipon == fm_false) {
@@ -348,7 +348,7 @@ fm_s32 fm_powerdown(struct fm *fm)
 {
     fm_s32 ret = 0;
 
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     ret = pwrdown_flow(fm);
 
@@ -362,7 +362,7 @@ fm_s32 fm_seek(struct fm *fm, struct fm_seek_parm *parm)
     fm_u16 seekdir, space;
 
     FMR_ASSERT(fm_low_ops.bi.seek);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     if (fm_pwr_state_get(fm) != FM_PWR_RX_ON) {
         parm->err = FM_BADSTATUS;
@@ -436,7 +436,7 @@ fm_s32  fm_scan(struct fm *fm, struct fm_scan_parm *parm)
     fm_u16 scandir = FM_SEEK_UP, space;
 
     FMR_ASSERT(fm_low_ops.bi.scan);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     if (fm_pwr_state_get(fm) != FM_PWR_RX_ON) {
         parm->err = FM_BADSTATUS;
@@ -512,7 +512,7 @@ fm_s32 fm_scan_new(struct fm *fm, struct fm_scan_t *parm)
     
     FMR_ASSERT(fm_low_ops.bi.scan);
     FMR_ASSERT(fm_low_ops.bi.cqi_get);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     // caculate channel number, get segment count
     cnt = (parm->upper - parm->lower) / parm->space + 1; //Eg, (10800 - 8750) / 5 = 411
@@ -626,7 +626,7 @@ fm_s32 fm_seek_new(struct fm *fm, struct fm_seek_t *parm)
     FMR_ASSERT(fm_low_ops.bi.rssiget);
     FMR_ASSERT(fm_low_ops.bi.rampdown);
 
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
      
     if (parm->freq < parm->lower || parm->freq > parm->upper) {
         WCN_DBG(FM_ERR | MAIN, "seek start freq:%d out of range\n", parm->freq);
@@ -669,7 +669,7 @@ fm_s32 fm_tune_new(struct fm *fm, struct fm_tune_t *parm)
     FMR_ASSERT(fm_low_ops.bi.rampdown);
     FMR_ASSERT(fm_low_ops.bi.setfreq);
 
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     WCN_DBG(FM_DBG | MAIN, "%s\n", __func__);
 
@@ -750,7 +750,7 @@ fm_s32  fm_cqi_get(struct fm *fm, fm_s32 ch_num, fm_s8 *buf, fm_s32 buf_size)
     fm_s32 idx = 0;
 
     FMR_ASSERT(fm_low_ops.bi.cqi_get);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     if (fm_true == scan_stop_flag) {
         WCN_DBG(FM_NTC | MAIN, "scan flow aborted, do not get CQI\n");
@@ -827,7 +827,7 @@ fm_s32 fm_get_hw_info(struct fm *pfm, struct fm_hw_info *req)
 
     //get actual chip hw info
     if (fm_low_ops.bi.hwinfo_get) {
-        FM_LOCK(fm_ops_lock);
+        if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
         ret = fm_low_ops.bi.hwinfo_get(req);
         FM_UNLOCK(fm_ops_lock);
     }
@@ -869,10 +869,11 @@ fm_s32  fm_hwscan_stop(struct fm *fm)
     FMR_ASSERT(fm_low_ops.bi.scanstop);
 
     fm_low_ops.bi.scanstop();
+    fm_low_ops.bi.seekstop();
     scan_stop_flag = fm_true;
     WCN_DBG(FM_DBG | MAIN, "fm will stop scan\n");
 
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
     
     fm_low_ops.bi.rampdown();
     fm_low_ops.bi.setfreq(fm_cur_freq_get());
@@ -892,7 +893,7 @@ fm_s32 fm_ana_switch(struct fm *fm, fm_s32 antenna)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.bi.anaswitch);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     WCN_DBG(FM_DBG | MAIN, "Switching ana to %s\n", antenna ? "short" : "long");
     fm->ana_type = antenna;
@@ -914,7 +915,7 @@ fm_s32 fm_setvol(struct fm *fm, fm_u32 vol)
     fm_u8 tmp_vol;
 
     FMR_ASSERT(fm_low_ops.bi.volset);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     tmp_vol = (vol > 15) ? 15 : vol;
     fm_low_ops.bi.volset(tmp_vol);
@@ -929,7 +930,7 @@ fm_s32 fm_getvol(struct fm *fm, fm_u32 *vol)
     fm_u8 tmp_vol;
 
     FMR_ASSERT(fm_low_ops.bi.volget);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     fm_low_ops.bi.volget(&tmp_vol);
     *vol = (fm_u32)tmp_vol;
@@ -943,7 +944,7 @@ fm_s32 fm_mute(struct fm *fm, fm_u32 bmute)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.bi.mute);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     if (bmute) {
         ret = fm_low_ops.bi.mute(fm_true);
@@ -962,7 +963,7 @@ fm_s32 fm_getrssi(struct fm *fm, fm_s32 *rssi)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.bi.rssiget);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.bi.rssiget(rssi);
 
@@ -975,7 +976,7 @@ fm_s32 fm_reg_read(struct fm *fm, fm_u8 addr, fm_u16 *val)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.bi.read);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.bi.read(addr, val);
 
@@ -988,7 +989,7 @@ fm_s32 fm_reg_write(struct fm *fm, fm_u8 addr, fm_u16 val)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.bi.write);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.bi.write(addr, val);
 
@@ -999,7 +1000,7 @@ fm_s32 fm_reg_write(struct fm *fm, fm_u8 addr, fm_u16 val)
 fm_s32 fm_chipid_get(struct fm *fm, fm_u16 *chipid)
 {
     FMR_ASSERT(chipid);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     *chipid = fm->chip_id;
 
@@ -1013,7 +1014,7 @@ fm_s32 fm_monostereo_get(struct fm *fm, fm_u16 *ms)
 
     FMR_ASSERT(fm_low_ops.bi.msget);
     FMR_ASSERT(ms);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     if (fm_low_ops.bi.msget(ms) == fm_false) {
         ret = -FM_EPARA;
@@ -1033,7 +1034,7 @@ fm_s32 fm_monostereo_set(struct fm *fm, fm_s32 ms)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.bi.msset);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.bi.msset(ms);
 
@@ -1047,7 +1048,7 @@ fm_s32 fm_pamd_get(struct fm *fm, fm_u16 *pamd)
 
     FMR_ASSERT(fm_low_ops.bi.pamdget);
     FMR_ASSERT(pamd);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     if (fm_low_ops.bi.pamdget(pamd) == fm_false) {
         ret = -FM_EPARA;
@@ -1063,7 +1064,7 @@ fm_s32 fm_caparray_get(struct fm *fm, fm_s32 *ca)
 
     FMR_ASSERT(fm_low_ops.bi.caparray_get);
     FMR_ASSERT(ca);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.bi.caparray_get(ca);
 
@@ -1076,7 +1077,7 @@ fm_s32 fm_em_test(struct fm *fm, fm_u16 group, fm_u16 item, fm_u32 val)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.bi.em);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     if (fm_false == fm_low_ops.bi.em(group, item, val)) {
         ret = -FM_EPARA;
@@ -1091,7 +1092,7 @@ fm_s32 fm_rds_onoff(struct fm *fm, fm_u16 rdson_off)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.ri.rds_onoff);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     if (rdson_off) {
         fm->rds_on = fm_true;
@@ -1119,7 +1120,7 @@ fm_s32 fm_rds_good_bc_get(struct fm *fm, fm_u16 *gbc)
 
     FMR_ASSERT(fm_low_ops.ri.rds_gbc_get);
     FMR_ASSERT(gbc);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     *gbc = fm_low_ops.ri.rds_gbc_get();
 
@@ -1133,7 +1134,7 @@ fm_s32 fm_rds_bad_bc_get(struct fm *fm, fm_u16 *bbc)
 
     FMR_ASSERT(fm_low_ops.ri.rds_bbc_get);
     FMR_ASSERT(bbc);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     *bbc = fm_low_ops.ri.rds_bbc_get();
 
@@ -1147,7 +1148,7 @@ fm_s32 fm_rds_bler_ratio_get(struct fm *fm, fm_u16 *bbr)
 
     FMR_ASSERT(fm_low_ops.ri.rds_bbr_get);
     FMR_ASSERT(bbr);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     *bbr = (fm_u16)fm_low_ops.ri.rds_bbr_get();
 
@@ -1161,7 +1162,7 @@ fm_s32 fm_rds_group_cnt_get(struct fm *fm, struct rds_group_cnt_t *dst)
 
     FMR_ASSERT(fm_low_ops.ri.rds_gc_get);
     FMR_ASSERT(dst);
-    FM_LOCK(fm_read_lock);
+    if (FM_LOCK(fm_read_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.ri.rds_gc_get(dst, fm->pstRDSData);
 
@@ -1174,7 +1175,7 @@ fm_s32 fm_rds_group_cnt_reset(struct fm *fm)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.ri.rds_gc_reset);
-    FM_LOCK(fm_read_lock);
+    if (FM_LOCK(fm_read_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.ri.rds_gc_reset(fm->pstRDSData);
 
@@ -1189,7 +1190,7 @@ fm_s32 fm_rds_log_get(struct fm *fm, struct rds_rx_t *dst, fm_s32 *dst_len)
     FMR_ASSERT(fm_low_ops.ri.rds_log_get);
     FMR_ASSERT(dst);
     FMR_ASSERT(dst_len);
-    FM_LOCK(fm_read_lock);
+    if (FM_LOCK(fm_read_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.ri.rds_log_get(dst, dst_len);
 
@@ -1202,7 +1203,7 @@ fm_s32 fm_rds_block_cnt_reset(struct fm *fm)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.ri.rds_bc_reset);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.ri.rds_bc_reset();
 
@@ -1215,7 +1216,7 @@ fm_s32 fm_i2s_set(struct fm *fm, fm_s32 onoff, fm_s32 mode, fm_s32 sample)
     fm_s32 ret = 0;
 
     FMR_ASSERT(fm_low_ops.bi.i2s_set);
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     ret = fm_low_ops.bi.i2s_set(onoff, mode, sample);
 
@@ -1234,7 +1235,7 @@ fm_s32 fm_tune(struct fm *fm, struct fm_tune_parm *parm)
     FMR_ASSERT(fm_low_ops.bi.rampdown);
     FMR_ASSERT(fm_low_ops.bi.setfreq);
 
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return (-FM_ELOCK);
 
     WCN_DBG(FM_DBG | MAIN, "%s\n", __func__);
 
@@ -1307,7 +1308,7 @@ static void fm_timer_func(unsigned long data)
 {
     struct fm *fm = g_fm_struct;
 
-    FM_LOCK(fm_timer_lock);
+    if (FM_LOCK(fm_timer_lock)) return;
 
     if (fm_timer_sys->update(fm_timer_sys)) {
         goto out; //fm timer is stoped before timeout
@@ -1324,14 +1325,14 @@ out:
 
 static void fm_enable_rds_BlerCheck(struct fm *fm)
 {
-    FM_LOCK(fm_timer_lock);
+    if (FM_LOCK(fm_timer_lock)) return;
     fm_timer_sys->start(fm_timer_sys);
     FM_UNLOCK(fm_timer_lock);
 }
 
 static void fm_disable_rds_BlerCheck(void)
 {
-    FM_LOCK(fm_timer_lock);
+    if (FM_LOCK(fm_timer_lock)) return;
     fm_timer_sys->stop(fm_timer_sys);
     FM_UNLOCK(fm_timer_lock);
 }
@@ -1344,7 +1345,7 @@ void fm_rds_reset_work_func(unsigned long data)
         return;
     }
 
-    FM_LOCK(fm_read_lock);
+    if (FM_LOCK(fm_read_lock)) return;
     ret = fm_low_ops.ri.rds_blercheck(g_fm_struct->pstRDSData);
 
     if (!ret && g_fm_struct->pstRDSData->event_status) {
@@ -1358,7 +1359,7 @@ void fm_rds_reset_work_func(unsigned long data)
 void fm_subsys_reset_work_func(unsigned long data)
 {
     g_dbg_level = 0xffffffff;
-    FM_LOCK(fm_ops_lock);
+    if (FM_LOCK(fm_ops_lock)) return;
 
     fm_sys_state_set(g_fm_struct, FM_SUBSYS_RST_START);
     
@@ -1423,7 +1424,7 @@ static fm_s32 fm_rds_parser(struct rds_rx_t *rds_raw, fm_s32 rds_size)
     struct fm *fm = g_fm_struct;//(struct fm *)work->data;
     rds_t *pstRDSData = fm->pstRDSData;
 
-    FM_LOCK(fm_read_lock);
+    if (FM_LOCK(fm_read_lock)) return (-FM_ELOCK);
     //parsing RDS data
     fm_low_ops.ri.rds_parser(pstRDSData, rds_raw, rds_size, fm_cur_freq_get);
     FM_UNLOCK(fm_read_lock);

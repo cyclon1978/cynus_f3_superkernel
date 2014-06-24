@@ -148,8 +148,6 @@ DISP_STATUS DISP_ConfigDither(int lrs, int lgs, int lbs, int dbr, int dbg, int d
 // Retrieve Information
 UINT32 DISP_GetScreenWidth(void);
 UINT32 DISP_GetScreenHeight(void);
-UINT32 DISP_GetActiveWidth(void);
-UINT32 DISP_GetActiveHeight(void);
 UINT32 DISP_GetScreenBpp(void);
 UINT32 DISP_GetPages(void);
 DISP_STATUS DISP_SetScreenBpp(UINT32);   ///config how many bits for each pixel of framebuffer
@@ -218,8 +216,6 @@ const DISP_DRIVER *DISP_GetDriverDSI(void);
 
 
 BOOL DISP_SelectDevice(const char* lcm_name);
-void GetLcdInfo(char * buf);    //edit by Magnum 2012-7-10
-void GetDebugInfo(char * buf); //edit by Magnum 2012-11-1
 BOOL DISP_DetectDevice(void);
 BOOL DISP_SelectDeviceBoot(const char* lcm_name);
 UINT32 DISP_GetVRamSizeBoot(char *cmdline);

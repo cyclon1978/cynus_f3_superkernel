@@ -23,8 +23,12 @@ p2pCalculate_IEForAssocReq (
 
         u4RetValue = prConnReqInfo->u4BufLength;
 
-    }
-while (FALSE);
+
+		
+		// ADD WMM Information Element
+        u4RetValue += (ELEM_HDR_LEN + ELEM_MAX_LEN_WMM_INFO);
+
+    } while (FALSE);
 
     return u4RetValue;
 } /* p2pCalculate_IEForAssocReq */
@@ -62,6 +66,10 @@ p2pGenerate_IEForAssocReq (
         kalMemCopy(pucIEBuf, prConnReqInfo->aucIEBuf, prConnReqInfo->u4BufLength);
 
         prMsduInfo->u2FrameLength += prConnReqInfo->u4BufLength;
+
+
+		mqmGenerateWmmInfoIE (prAdapter,prMsduInfo);
+
 
     } while (FALSE);
 

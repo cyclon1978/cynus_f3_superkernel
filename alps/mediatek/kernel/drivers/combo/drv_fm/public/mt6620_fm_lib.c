@@ -118,6 +118,23 @@ int fm_bop_msleep(uint32_t value, unsigned char *buf, int size)
     return (FM_MSLEEP_BASIC_OP_SIZE+2);
 }
 
+/*
+ * fm_get_channel_space - get the spcace of gived channel
+ * @freq - value in 760~1080 or 7600~10800
+ *
+ * Return 0, if 760~1080; return 1, if 7600 ~ 10800, else err code < 0
+ */
+static int fm_get_channel_space(int freq)
+{
+    if ((freq >= 760) && (freq <= 1080)) {
+        return 0;
+    } else if ((freq >= 7600) && (freq <= 10800)) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
+
 //MT6620 IC
 int mt6620_off_2_longANA(unsigned char *tx_buf, int tx_buf_size)
 {
@@ -1489,4 +1506,5 @@ int mt6620_ant_switch_ack(unsigned char *tx_buf, int tx_buf_size)
 
     return 4;
 }
+
 

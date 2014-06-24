@@ -12,6 +12,10 @@
 /*
 ** $Log: wlan_oid.c $
 **
+** 01 21 2013 cp.wu
+** [ALPS00438894] ?wifi?????????CTIA?wifi?????
+** reject scan request when disabling online scan facility
+**
 ** 07 19 2012 yuche.tsai
 ** NULL
 ** Code update for JB.
@@ -1562,6 +1566,12 @@ wlanoidSetBssidListScan (
             if (kalGetMediaStateIndicated(prAdapter->prGlueInfo) != PARAM_MEDIA_STATE_CONNECTED){
                 aisFsmScanRequest(prAdapter, prSsid, NULL, 0);
             }
+            else {
+                return WLAN_STATUS_FAILURE;
+            }
+        }
+        else {
+            return WLAN_STATUS_FAILURE;
         }
     }
     else
@@ -1572,6 +1582,9 @@ wlanoidSetBssidListScan (
         }
         else if(kalGetMediaStateIndicated(prAdapter->prGlueInfo) != PARAM_MEDIA_STATE_CONNECTED) {
             aisFsmScanRequest(prAdapter, prSsid, NULL, 0);
+        }
+        else {
+            return WLAN_STATUS_FAILURE;
         }
     }
 
@@ -1609,6 +1622,7 @@ wlanoidSetBssidListScanExt (
     P_PARAM_SSID_T prSsid;
     PUINT_8 pucIe;
     UINT_32 u4IeLength;
+	WLAN_STATUS rStatus = WLAN_STATUS_SUCCESS;
 
     DEBUGFUNC("wlanoidSetBssidListScanExt()");
 
@@ -1644,12 +1658,26 @@ wlanoidSetBssidListScanExt (
         u4IeLength = 0;
     }
 
+    P_AIS_FSM_INFO_T prAisFsmInfo;
+    prAisFsmInfo = &(prAdapter->rWifiVar.rAisFsmInfo);
+    cnmTimerStartTimer(prAdapter,
+                    &prAisFsmInfo->rScanDoneTimer,
+                    SEC_TO_MSEC(AIS_SCN_DONE_TIMEOUT_SEC));
+
 #if CFG_SUPPORT_RDD_TEST_MODE
     if (prAdapter->prGlueInfo->rRegInfo.u4RddTestMode) {
         if((prAdapter->fgEnOnlineScan == TRUE) && (prAdapter->ucRddStatus)){
             if (kalGetMediaStateIndicated(prAdapter->prGlueInfo) != PARAM_MEDIA_STATE_CONNECTED){
                 aisFsmScanRequest(prAdapter, prSsid, pucIe, u4IeLength);
             }
+            else {
+                /* reject the scan request */
+                rStatus = WLAN_STATUS_FAILURE;
+            }
+        }
+        else {
+            /* reject the scan request */
+            rStatus = WLAN_STATUS_FAILURE;
         }
     }
     else
@@ -1661,9 +1689,13 @@ wlanoidSetBssidListScanExt (
         else if(kalGetMediaStateIndicated(prAdapter->prGlueInfo) != PARAM_MEDIA_STATE_CONNECTED) {
             aisFsmScanRequest(prAdapter, prSsid, pucIe, u4IeLength);
         }
+        else {
+            /* reject the scan request */
+            rStatus = WLAN_STATUS_FAILURE;
+        }
     }
 
-    return WLAN_STATUS_SUCCESS;
+    return rStatus;
 } /* wlanoidSetBssidListScanWithIE */
 
 

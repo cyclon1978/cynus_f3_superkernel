@@ -564,13 +564,5 @@ typedef enum
 #define FLAG_TERMINATE      (1 << 31)
 
 
-/*
- * fm_get_channel_space - get the spcace of gived channel
- * @freq - value in 760~1080 or 7600~10800
- *
- * Return 0, if 760~1080; return 1, if 7600 ~ 10800, else err code < 0
- */
-inline int fm_get_channel_space(int freq);
-
-
 #endif //__MT6620_FM_H__
+

@@ -5338,6 +5338,42 @@ wlanGetChannelNumberByNetwork (
 /*----------------------------------------------------------------------------*/
 /*!
 * @brief This function is to
+*        get BSS descriptor information corresponding to specified network type
+*
+* @param prAdapter      Pointer of Adapter Data Structure
+* @param eNetTypeIndex  Given Network Type
+*
+* @return pointer to BSS_DESC_T
+*/
+/*----------------------------------------------------------------------------*/
+P_BSS_DESC_T
+wlanGetTargetBssDescByNetwork (
+    IN P_ADAPTER_T prAdapter,
+    IN ENUM_NETWORK_TYPE_INDEX_T eNetTypeIndex
+    )
+{
+    ASSERT(prAdapter);
+    ASSERT(eNetTypeIndex <= NETWORK_TYPE_INDEX_NUM);
+
+    switch(eNetTypeIndex) {
+    case NETWORK_TYPE_AIS_INDEX:
+        return prAdapter->rWifiVar.rAisFsmInfo.prTargetBssDesc;
+
+    case NETWORK_TYPE_P2P_INDEX:
+        return NULL;
+
+    case NETWORK_TYPE_BOW_INDEX:
+        return prAdapter->rWifiVar.rBowFsmInfo.prTargetBssDesc;
+
+    default:
+        return NULL;
+    }
+}
+
+
+/*----------------------------------------------------------------------------*/
+/*!
+* @brief This function is to
 *        check unconfigured system properties and generate related message on
 *        scan list to notify users
 *

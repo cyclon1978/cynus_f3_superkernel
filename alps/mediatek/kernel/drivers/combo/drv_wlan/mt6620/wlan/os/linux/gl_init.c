@@ -13,6 +13,10 @@
 
 /*
 ** $Log: gl_init.c $
+**
+** 11 15 2012 cp.wu
+** [ALPS00382763] N820_JB:[WIFI]N820JB WLAN ±K???,«ÝÉó?¬y¥\¯Ó¤j
+** when being disconnected, set flag to stop join retrial.
  *
  * 07 17 2012 yuche.tsai
  * NULL
@@ -2156,6 +2160,9 @@ wlanNetCreate(
 
     //4 <3.1.2> co-relate with wiphy bi-directionally
     prGlueInfo->prDevHandler->ieee80211_ptr = prWdev;
+#if CFG_TCP_IP_CHKSUM_OFFLOAD
+    prGlueInfo->prDevHandler->features = NETIF_F_HW_CSUM;
+#endif
     prWdev->netdev = prGlueInfo->prDevHandler;
 
     //4 <3.1.3> co-relate net device & prDev

@@ -22,6 +22,7 @@ extern fm_s32 fm_file_exist(const fm_s8 *filename);
 
 extern fm_s32 fm_file_read(const fm_s8 *filename, fm_u8* dst, fm_s32 len, fm_s32 position);
 
+extern fm_s32 fm_file_write(const fm_s8 *filename, fm_u8* dst, fm_s32 len, fm_s32 *ppos);
 
 
 #endif //__FM_PATCH_H__

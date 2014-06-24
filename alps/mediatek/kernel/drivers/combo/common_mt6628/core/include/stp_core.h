@@ -460,7 +460,6 @@ extern void mtk_wcn_stp_set_auto_rst(MTK_WCN_BOOL auto_rst);
 *****************************************************************************/
 extern int mtk_wcn_stp_psm_notify_stp(const UINT32 action);
 
-extern int mtk_wcn_stp_set_psm_state(MTKSTP_PSM_STATE_T state);
 
 /*****************************************************************************
 * FUNCTION

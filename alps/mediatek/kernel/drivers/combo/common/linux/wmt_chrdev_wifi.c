@@ -91,7 +91,7 @@ ssize_t WIFI_write(struct file *filp, const char __user *buf, size_t count, loff
                     retval = count;
                 }
             }
-            else if (local[0] == '1') {
+            else if (local[0] == '1' && opened == 0) {
                 //TODO
                 //Disable EINT(external interrupt), and set the GPIO to EINT mode.
 

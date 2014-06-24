@@ -1068,6 +1068,22 @@ out:
     return ret;
 }
 
+/*
+ * fm_get_channel_space - get the spcace of gived channel
+ * @freq - value in 760~1080 or 7600~10800
+ *
+ * Return 0, if 760~1080; return 1, if 7600 ~ 10800, else err code < 0
+ */
+static int fm_get_channel_space(int freq)
+{
+    if ((freq >= 760) && (freq <= 1080)) {
+        return 0;
+    } else if ((freq >= 7600) && (freq <= 10800)) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
 
 /***********************************************************
 Function: 	MT6620_I2S_Setting()
@@ -1627,25 +1643,6 @@ out1:
     FM_LOG_DBG(D_CMD,"-%s():[ret=%d]\n", __func__, ret);
     return ret;
 }
-
-
-/*
- * fm_get_channel_space - get the spcace of gived channel
- * @freq - value in 760~1080 or 7600~10800
- *
- * Return 0, if 760~1080; return 1, if 7600 ~ 10800, else err code < 0
- */
-inline int fm_get_channel_space(int freq)
-{
-    if ((freq >= 760) && (freq <= 1080)) {
-        return 0;
-    } else if ((freq >= 7600) && (freq <= 10800)) {
-        return 1;
-    } else {
-        return -1;
-    }
-}
-
 
 static int fm_enable_rds_BlerCheck(struct fm *fm)
 {
@@ -5624,4 +5621,5 @@ module_exit(mt_fm_remove);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("MediaTek MT6620 FM Driver");
 MODULE_AUTHOR("Mike <yunchang.chang@MediaTek.com>");
+
 

@@ -485,6 +485,21 @@ static inline struct rt_bandwidth *sched_rt_bandwidth(struct rt_rq *rt_rq)
 	return &rt_rq->tg->rt_bandwidth;
 }
 
+void unthrottle_offline_rt_rqs(struct rq *rq) {
+	struct rt_rq *rt_rq;
+
+	for_each_leaf_rt_rq(rt_rq, rq) {
+		/*
+		 * clock_task is not advancing so we just need to make sure
+		 * there's some valid quota amount
+		 */
+		if (rt_rq_throttled(rt_rq)){
+			rt_rq->rt_throttled = 0;
+			printk(KERN_ERR "sched: RT throttling inactivated\n");
+		}
+	}
+}
+
 #else /* !CONFIG_RT_GROUP_SCHED */
 
 static inline u64 sched_rt_runtime(struct rt_rq *rt_rq)
@@ -552,6 +567,8 @@ static inline struct rt_bandwidth *sched_rt_bandwidth(struct rt_rq *rt_rq)
 	return &def_rt_bandwidth;
 }
 
+void unthrottle_offline_rt_rqs(struct rq *rq) { }
+
 #endif /* CONFIG_RT_GROUP_SCHED */
 
 #ifdef CONFIG_SMP
@@ -561,7 +578,7 @@ static inline struct rt_bandwidth *sched_rt_bandwidth(struct rt_rq *rt_rq)
 static int do_balance_runtime(struct rt_rq *rt_rq)
 {
 	struct rt_bandwidth *rt_b = sched_rt_bandwidth(rt_rq);
-	struct root_domain *rd = cpu_rq(smp_processor_id())->rd;
+	struct root_domain *rd = rq_of_rt_rq(rt_rq)->rd;
 	int i, weight, more = 0;
 	u64 rt_period;
 
@@ -1082,7 +1099,8 @@ static void __enqueue_rt_entity(struct sched_rt_entity *rt_se, bool head)
 	 * get throttled and the current group doesn't have any other
 	 * active members.
 	 */
-	if (group_rq && (rt_rq_throttled(group_rq) || !group_rq->rt_nr_running))
+//	if (group_rq && (rt_rq_throttled(group_rq) || !group_rq->rt_nr_running))
+	if (group_rq && ( !group_rq->rt_nr_running))
 		return;
 
 	if (!rt_rq->rt_nr_running)
@@ -1357,13 +1375,14 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
 	if (rt_rq_throttled(rt_rq)){
 		/* prevent wdt from RT throttle */
 		struct rt_prio_array *array = &rt_rq->active;
-		int idx = 0, prio = MAX_RT_PRIO- 1 - idx;  //WDT priority
+		int idx = 0, prio = MAX_RT_PRIO - 1 - idx;  //WDT priority
 
 		if( test_bit(idx, array->bitmap)){
 			list_for_each_entry(rt_se, array->queue + idx, run_list){
 				p = rt_task_of(rt_se);
 				if( (p->rt_priority == prio) && (0 == strncmp(p->comm, "wdtk", 4)) ){
-					printk(KERN_WARNING "unthrottle %s\n", p->comm);
+					p->se.exec_start = rq->clock_task;
+					printk(KERN_WARNING "sched: unthrottle %s\n", p->comm);
 					return p;
 				}
 			}

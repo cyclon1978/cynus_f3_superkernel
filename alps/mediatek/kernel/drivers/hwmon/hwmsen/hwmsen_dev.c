@@ -41,7 +41,9 @@
 #define SENSOR_INVALID_VALUE -1
 #define MAX_CHOOSE_G_NUM 5
 #define MAX_CHOOSE_M_NUM 5
-
+#if defined(MTK_AUTO_DETECT_ALSPS)
+#define MAX_CHOOSE_ALSPS_NUM  5
+#endif
 static void hwmsen_early_suspend(struct early_suspend *h);
 static void hwmsen_late_resume(struct early_suspend *h);
 static void update_workqueue_polling_rate(int newDelay);
@@ -70,7 +72,11 @@ static struct sensor_init_info* gsensor_init_list[MAX_CHOOSE_G_NUM]= {0}; //modi
 #endif
 #if defined(MTK_AUTO_DETECT_MAGNETOMETER)
 static char msensor_name[25];
-static struct sensor_init_info* msensor_init_list[MAX_CHOOSE_G_NUM]= {0}; //modified
+static struct sensor_init_info* msensor_init_list[MAX_CHOOSE_M_NUM]= {0}; //modified
+#endif
+#if defined(MTK_AUTO_DETECT_ALSPS)
+static char alsps_sensor_name[25];
+static struct sensor_init_info* alsps_sensor_init_list[MAX_CHOOSE_ALSPS_NUM]= {0}; 
 #endif
 
 /*----------------------------------------------------------------------------*/
@@ -1438,6 +1444,102 @@ EXPORT_SYMBOL_GPL(hwmsen_gsensor_add);
 
 #endif
 
+
+#if defined(MTK_AUTO_DETECT_ALSPS)
+
+int hwmsen_alsps_sensor_remove(struct platform_device *pdev)
+{
+    int err =0;
+	int i=0;
+	for(i = 0; i < MAX_CHOOSE_ALSPS_NUM; i++)
+	{
+	   if(0 ==  strcmp(alsps_sensor_name,alsps_sensor_init_list[i]->name))
+	   {
+	      if(NULL == alsps_sensor_init_list[i]->uninit)
+	      {
+	        HWM_LOG(" hwmsen_alsps_sensor_remove null pointer \n");
+	        return -1;
+	      }
+	      alsps_sensor_init_list[i]->uninit();
+	   }
+	}
+    return 0;
+}
+
+static int alsps_sensor_probe(struct platform_device *pdev) 
+{
+    int i =0;
+	int err=0;
+	HWM_LOG(KERN_ERR " alsps_sensor_probe \n");
+	for(i = 0; i < MAX_CHOOSE_ALSPS_NUM; i++)
+	{
+	  if(NULL != alsps_sensor_init_list[i])
+	  {
+	    err = alsps_sensor_init_list[i]->init();
+		if(0 == err)
+		{
+		   strcpy(alsps_sensor_name,alsps_sensor_init_list[i]->name);
+		   HWM_LOG(KERN_ERR" alsps_sensor %s probe ok\n", alsps_sensor_name);
+		   break;
+		}
+		else
+		{
+			HWM_LOG(KERN_ERR" alsps_sensor %s probe fail\n", alsps_sensor_init_list[i]->name);
+		}
+	  }
+	  else
+	  {
+			HWM_LOG(KERN_ERR"alsps_sensor_probe null i=%d\n",i);
+	  }
+	}
+	return 0;
+}
+
+
+static struct platform_driver alsps_sensor_driver = {
+	.probe      = alsps_sensor_probe,
+	.remove     = hwmsen_alsps_sensor_remove,    
+	.driver     = 
+	{
+		.name  = "als_ps",
+		.owner = THIS_MODULE,
+	}
+};
+
+int hwmsen_alsps_sensor_add(struct sensor_init_info* obj) 
+{
+    int err=0;
+	int i =0;
+	
+	HWM_FUN(f);
+
+	for(i =0; i < MAX_CHOOSE_ALSPS_NUM; i++ )
+	{
+	    if(NULL == alsps_sensor_init_list[i])
+	    {
+	      alsps_sensor_init_list[i] = kzalloc(sizeof(struct sensor_init_info), GFP_KERNEL);
+		  if(NULL == alsps_sensor_init_list[i])
+		  {
+		     HWM_ERR(KERN_ERR "kzalloc error name=%s,i=%d\n",obj->name,i);
+		     return -1;
+		  }
+		  else
+		  {
+			HWM_ERR(KERN_ERR "kzalloc correct name=%s,i=%d\n",obj->name,i);	
+		  }
+		  obj->platform_diver_addr = &alsps_sensor_driver;
+	      alsps_sensor_init_list[i] = obj;
+		  
+		  break;
+	    }
+	}
+		
+	return err;
+}
+//EXPORT_SYMBOL_GPL(hwmsen_alsps_sensor_add);
+
+#endif
+
 /*----------------------------------------------------------------------------*/
 static int __init hwmsen_init(void) 
 {
@@ -1465,6 +1567,13 @@ static int __init hwmsen_init(void)
 		}
 #endif
 
+#if defined(MTK_AUTO_DETECT_ALSPS)
+			if(platform_driver_register(&alsps_sensor_driver))
+			{
+				HWM_ERR("failed to register mensor driver");
+				return -ENODEV;
+			}
+#endif
 	return 0;
 }
 /*----------------------------------------------------------------------------*/

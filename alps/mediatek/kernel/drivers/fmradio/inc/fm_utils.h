@@ -206,11 +206,13 @@ extern fm_s32 fm_lock_get(struct fm_lock *thiz);
 extern fm_s32 fm_lock_put(struct fm_lock *thiz);
 
 #define FM_LOCK(a)         \
-{                           \
-    if((a)->lock){          \
-        (a)->lock(a);    \
+({                           \
+    fm_s32 __ret = (fm_s32)0; \
+    if(a && (a)->lock){          \
+        __ret = (a)->lock(a);    \
     }                       \
-}
+    __ret;                   \
+})
 
 #define FM_UNLOCK(a)         \
 {                             \

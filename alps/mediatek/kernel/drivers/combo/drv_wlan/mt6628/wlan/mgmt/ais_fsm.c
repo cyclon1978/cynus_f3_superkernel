@@ -12,6 +12,10 @@
 
 /*
 ** $Log: ais_fsm.c $
+**
+** 11 29 2012 cp.wu
+** [ALPS00403868] WIFI«ÝÉó?¬y?¤j
+** sync with MT6620 logic to not retry connection when being disconnected by the remote peer.
  *
  * 04 20 2012 cp.wu
  * [WCXRP00000913] [MT6620 Wi-Fi] create repository of source code dedicated for MT6620 E6 ASIC
@@ -1023,6 +1027,7 @@ aisInitializeConnectionSettings (
     prConnSettings->fgIsConnByBssidIssued = FALSE;
 
     prConnSettings->fgIsConnReqIssued = FALSE;
+    prConnSettings->fgIsDisconnectedByNonRequest = FALSE;
 
     prConnSettings->ucSSIDLen = 0;
 
@@ -1143,6 +1148,11 @@ aisFsmInit (
             (PFN_MGMT_TIMEOUT_FUNC)aisFsmRunEventJoinTimeout,
             (UINT_32)NULL);
 
+    cnmTimerInitTimer(prAdapter,
+                &prAisFsmInfo->rScanDoneTimer,
+                (PFN_MGMT_TIMEOUT_FUNC)aisFsmRunEventScanDoneTimeOut,
+                (UINT_32)NULL);
+
     //4 <1.2> Initiate PWR STATE
     SET_NET_PWR_STATE_IDLE(prAdapter, NETWORK_TYPE_AIS_INDEX);
 
@@ -1225,6 +1235,7 @@ aisFsmUninit (
     cnmTimerStopTimer(prAdapter, &prAisFsmInfo->rIbssAloneTimer);
     cnmTimerStopTimer(prAdapter, &prAisFsmInfo->rIndicationOfDisconnectTimer);
     cnmTimerStopTimer(prAdapter, &prAisFsmInfo->rJoinTimeoutTimer);
+    cnmTimerStopTimer(prAdapter, &prAisFsmInfo->rScanDoneTimer); //Add by Enlai
 
     //4 <2> flush pending request
     aisFsmFlushRequest(prAdapter);
@@ -1820,7 +1831,8 @@ aisFsmSteps (
             prAisReq = aisFsmGetNextRequest(prAdapter);
 
             if(prAisReq == NULL || prAisReq->eReqType == AIS_REQUEST_RECONNECT) {
-                if (prConnSettings->fgIsConnReqIssued) {
+                if (prConnSettings->fgIsConnReqIssued == TRUE && 
+                        prConnSettings->fgIsDisconnectedByNonRequest == FALSE) {
 
                     prAisFsmInfo->fgTryScan = TRUE;
 
@@ -2016,10 +2028,13 @@ aisFsmSteps (
                  *
                  * CASE III: Normal case, we can't find other candidate to roam
                  * out, so only the current AP will be matched.
+                 *
+                 * CASE IV: Avoid roaming between the same BSSID
                  */
-                if ((!prBssDesc) || /* CASE I */
-                    (prBssDesc->eBSSType != BSS_TYPE_INFRASTRUCTURE) || /* CASE II */
-                    (prBssDesc->fgIsConnected) /* CASE III */) {
+                 if ((!prBssDesc) || /* CASE I */
+                 (prBssDesc->eBSSType != BSS_TYPE_INFRASTRUCTURE) || /* CASE II */
+                 (prBssDesc->fgIsConnected) || /* CASE III */
+                 (EQUAL_MAC_ADDR(prBssDesc->aucBSSID, prAisBssInfo->aucBSSID)) /* CASE IV */){
 #if DBG
                     if ((prBssDesc) &&
                         (prBssDesc->fgIsConnected)) {
@@ -2383,12 +2398,14 @@ aisFsmRunEventAbort (
     P_AIS_FSM_INFO_T prAisFsmInfo;
     UINT_8 ucReasonOfDisconnect;
     BOOLEAN fgDelayIndication;
+    P_CONNECTION_SETTINGS_T prConnSettings;
 
     DEBUGFUNC("aisFsmRunEventAbort()");
 
     ASSERT(prAdapter);
     ASSERT(prMsgHdr);
     prAisFsmInfo = &(prAdapter->rWifiVar.rAisFsmInfo);
+    prConnSettings = &(prAdapter->rWifiVar.rConnSettings);
 
     //4 <1> Extract information of Abort Message and then free memory.
     prAisAbortMsg = (P_MSG_AIS_ABORT_T)prMsgHdr;
@@ -2407,6 +2424,14 @@ aisFsmRunEventAbort (
 #endif
 
     //4 <2> clear previous pending connection request and insert new one
+    if(ucReasonOfDisconnect == DISCONNECT_REASON_CODE_DEAUTHENTICATED 
+            || ucReasonOfDisconnect == DISCONNECT_REASON_CODE_DISASSOCIATED) {
+        prConnSettings->fgIsDisconnectedByNonRequest = TRUE;
+    }
+    else {
+        prConnSettings->fgIsDisconnectedByNonRequest = FALSE;
+    }
+
     aisFsmIsRequestPending(prAdapter, AIS_REQUEST_RECONNECT, TRUE);
     aisFsmInsertRequest(prAdapter, AIS_REQUEST_RECONNECT);
 
@@ -3148,8 +3173,10 @@ aisPostponedEventOfDisconnTimeout (
     )
 {
     P_BSS_INFO_T prAisBssInfo;
+    P_CONNECTION_SETTINGS_T prConnSettings;
 
     prAisBssInfo = &(prAdapter->rWifiVar.arBssInfo[NETWORK_TYPE_AIS_INDEX]);
+    prConnSettings = &(prAdapter->rWifiVar.rConnSettings);
 
     //4 <1> Deactivate previous AP's STA_RECORD_T in Driver if have.
     if (prAisBssInfo->prStaRecOfAP) {
@@ -3160,6 +3187,7 @@ aisPostponedEventOfDisconnTimeout (
 
     //4 <2> Remove pending connection request
     aisFsmIsRequestPending(prAdapter, AIS_REQUEST_RECONNECT, TRUE);
+    prConnSettings->fgIsDisconnectedByNonRequest = TRUE;
 
     //4 <3> Indicate Disconnected Event to Host immediately.
     aisIndicationOfMediaStateToHost(prAdapter, PARAM_MEDIA_STATE_DISCONNECTED, FALSE);
@@ -3745,6 +3773,64 @@ aisFsmDisconnect (
 
 /*----------------------------------------------------------------------------*/
 /*!
+* @brief This function will indicate an Event of Scan done Time-Out to AIS FSM.
+*
+* @param[in] u4Param  Unused timer parameter
+*
+* @return (none)
+*/
+/*----------------------------------------------------------------------------*/
+VOID
+aisFsmRunEventScanDoneTimeOut (
+    IN P_ADAPTER_T prAdapter,
+    UINT_32 u4Param
+    )
+{
+    DEBUGFUNC("aisFsmRunEventScanDoneTimeOut()");
+
+    P_AIS_FSM_INFO_T prAisFsmInfo;
+    ENUM_AIS_STATE_T eNextState;
+    P_CONNECTION_SETTINGS_T prConnSettings;
+
+    ASSERT(prAdapter);
+
+    prAisFsmInfo = &(prAdapter->rWifiVar.rAisFsmInfo);
+    prConnSettings = &(prAdapter->rWifiVar.rConnSettings);
+
+    DBGLOG(AIS, STATE, ("aisFsmRunEventScanDoneTimeOut Current[%d]\n",prAisFsmInfo->eCurrentState));
+
+    prConnSettings->fgIsScanReqIssued = FALSE;
+    kalScanDone(prAdapter->prGlueInfo, KAL_NETWORK_TYPE_AIS_INDEX, WLAN_STATUS_SUCCESS);
+    eNextState = prAisFsmInfo->eCurrentState;
+
+    switch (prAisFsmInfo->eCurrentState) {
+            case AIS_STATE_SCAN:
+                prAisFsmInfo->u4ScanIELength = 0;
+                eNextState = AIS_STATE_IDLE;
+                break;
+            case AIS_STATE_ONLINE_SCAN:
+                /* reset scan IE buffer */
+                prAisFsmInfo->u4ScanIELength = 0;
+#if CFG_SUPPORT_ROAMING
+                eNextState = aisFsmRoamingScanResultsUpdate(prAdapter);
+#else
+                eNextState = AIS_STATE_NORMAL_TR;
+#endif /* CFG_SUPPORT_ROAMING */
+                break;
+            default:
+                break;
+        }
+
+        if (eNextState != prAisFsmInfo->eCurrentState) {
+            aisFsmSteps(prAdapter, eNextState);
+        }
+
+    return;
+} /* end of aisFsmBGSleepTimeout() */
+
+
+/*----------------------------------------------------------------------------*/
+/*!
 * @brief This function will indicate an Event of "Background Scan Time-Out" to AIS FSM.
 *
 * @param[in] u4Param  Unused timer parameter
@@ -4013,7 +4099,7 @@ aisFsmScanRequest (
                     (UINT_8)prSsid->u4SsidLen);
         }
 
-        if(u4IeLength > 0) {
+        if(u4IeLength > 0 && u4IeLength <= MAX_IE_LENGTH ) {
             prAisFsmInfo->u4ScanIELength = u4IeLength;
             kalMemCopy(prAisFsmInfo->aucScanIEBuf, pucIe, u4IeLength);
         }

@@ -230,7 +230,7 @@
 /*******************************************************************************
 *                            P U B L I C   D A T A
 ********************************************************************************
-*/extern BOOLEAN fgIsResetting;
+*/
 
 /*******************************************************************************
 *                           P R I V A T E   D A T A
@@ -337,9 +337,8 @@ nicpmSetDriverOwn (
         }
         else if(kalIsCardRemoved(prAdapter->prGlueInfo) == TRUE
                 || fgIsBusAccessFailed == TRUE
-                || (kalGetTimeTick() - u4CurrTick) > LP_OWN_BACK_TOTAL_DELAY_MS
-                ||fgIsResetting ==TRUE) {
-            ERRORLOG(("LP cannot be own back (for %ld ms)", kalGetTimeTick() - u4CurrTick));
+                || (kalGetTimeTick() - u4CurrTick) > LP_OWN_BACK_TOTAL_DELAY_MS) {
+            //ERRORLOG(("LP cannot be own back (for %ld ms)", kalGetTimeTick() - u4CurrTick));
             fgStatus = FALSE;
             break;
         }

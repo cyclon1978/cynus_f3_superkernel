@@ -41,7 +41,6 @@ DAL_STATUS DAL_Printf(const char *fmt, ...);
 DAL_STATUS DAL_OnDispPowerOn(void);
 DAL_STATUS DAL_LowMemoryOn(void);
 DAL_STATUS DAL_LowMemoryOff(void);
-DAL_STATUS DAL_RestoreAEE(void);
 #ifdef __cplusplus
 }
 #endif

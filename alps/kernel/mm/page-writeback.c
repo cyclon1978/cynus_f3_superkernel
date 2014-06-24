@@ -68,7 +68,7 @@ static long ratelimit_pages = 32;
 /*
  * Start background writeback (via writeback threads) at this percentage
  */
-int dirty_background_ratio = 80;
+int dirty_background_ratio = 10;
 
 /*
  * dirty_background_bytes starts at 0 (disabled) so that it is a function of
@@ -85,7 +85,7 @@ int vm_highmem_is_dirtyable;
 /*
  * The generator of dirty data starts writeback at this percentage
  */
-int vm_dirty_ratio = 90;
+int vm_dirty_ratio = 20;
 
 /*
  * vm_dirty_bytes starts at 0 (disabled) so that it is a function of
@@ -128,12 +128,13 @@ EXPORT_SYMBOL_GPL(dirty_writeback_suspend_interval);
 /*
  * The longest time for which data is allowed to remain dirty
  */
-unsigned int dirty_expire_interval = 10 * 100; /* centiseconds */
+unsigned int dirty_expire_interval = 30 * 100; /* centiseconds */
 
 /*
  * Flag that makes the machine dump writes/reads and block dirtyings.
  */
 int block_dump;
+EXPORT_SYMBOL_GPL(block_dump);
 
 /*
  * Flag that puts the machine in "laptop mode". Doubles as a timeout in jiffies:
@@ -2066,6 +2067,26 @@ int __set_page_dirty_no_writeback(struct page *page)
  */
 void account_page_dirtied(struct page *page, struct address_space *mapping)
 {
+#ifdef FEATURE_STORAGE_PID_LOGGER
+		struct page_pid_logger *tmp_logger;
+		extern unsigned char *page_logger;
+		extern spinlock_t g_locker;
+		if( page_logger && page) {
+			int page_index;
+	
+			page_index = (unsigned long)((page) - mem_map) ;
+			tmp_logger =((struct page_pid_logger *)page_logger) + page_index;
+			spin_lock(&g_locker);
+			if( page_index < num_physpages) {
+				if( tmp_logger->pid1 == 0XFFFF && tmp_logger->pid2 != current->pid)
+					tmp_logger->pid1 = current->pid;
+				else if( tmp_logger->pid1 != current->pid )
+					tmp_logger->pid2 = current->pid;
+			}
+			spin_unlock(&g_locker);
+			//printk(KERN_INFO"account_page_dirtied pid1:%u pid2:%u pfn:%d \n", tmp_logger->pid1, tmp_logger->pid2, page_index );
+		}
+#endif
 	if (mapping_cap_account_dirty(mapping)) {
 		__inc_zone_page_state(page, NR_FILE_DIRTY);
 		__inc_zone_page_state(page, NR_DIRTIED);
@@ -2373,3 +2394,4 @@ int mapping_tagged(struct address_space *mapping, int tag)
 	return radix_tree_tagged(&mapping->page_tree, tag);
 }
 EXPORT_SYMBOL(mapping_tagged);
+

@@ -1,5 +1,3 @@
-ifdef CONFIG_MTK_COMBO
-
 # combo driver: MT6620
 # If KERNELRELEASE is defined, we've been invoked from the
 # kernel build system and can use its language.
@@ -22,7 +20,3 @@ else
 default:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 endif
-
-endif # CONFIG_MTK_COMBO
-
-obj- := dummy.o

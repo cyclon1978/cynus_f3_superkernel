@@ -76,7 +76,7 @@ static const char longname[] = "Gadget Android";
 #define PRODUCT_ID		0x0001
 
 /* Default manufacturer and product string , overridden by userspace */
-#define MANUFACTURER_STRING "MediaTek"
+#define MANUFACTURER_STRING "Mediatek"
 #define PRODUCT_STRING "MT65xx Android Phone"
 
 #define USB_LOG "USB"
@@ -2006,3 +2006,4 @@ static void __exit cleanup(void)
 	_android_dev = NULL;
 }
 module_exit(cleanup);
+

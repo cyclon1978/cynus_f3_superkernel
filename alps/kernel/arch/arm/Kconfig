@@ -34,6 +34,7 @@ config ARM
 	select GENERIC_IRQ_SHOW
 	select CPU_PM if (SUSPEND || CPU_IDLE)
 	select GENERIC_PCI_IOMAP
+	select ARM_HAS_SG_CHAIN if (ARCH_MT6589)
 	select HAVE_BPF_JIT if NET
 	help
 	  The ARM series is a line of low-power-consumption RISC chip designs
@@ -142,10 +143,9 @@ config GENERIC_LOCKBREAK
 
 config RWSEM_GENERIC_SPINLOCK
 	bool
-	default y
 
 config RWSEM_XCHGADD_ALGORITHM
-	bool
+	def_bool y
 
 config ARCH_HAS_ILOG2_U32
 	bool
@@ -1408,23 +1408,14 @@ config PL310_ERRATA_769419
 	  explicitly.
 
 config ARM_ERRATA_775420
-	bool "ARM errata: A data cache maintenance operation which aborts, might lead to deadlock"
-	depends on CPU_V7
-	help
-	  This option enables the workaround for the 775420 Cortex-A9 (r2p2,
-	  r2p6,r2p8,r2p10,r3p0) erratum. In case a date cache maintenance
-	  operation aborts with MMU exception, it might cause the processor
-	  to deadlock. This workaround puts DSB before executing ISB if
-	  an abort may occur on cache maintenance.
-
-config ARM_ERRATA_782773
-	bool "ARM errata: Updating a translation entry might cause an unexpected translation fault"
-	depends on CPU_V7
-	help
-	  This option enables the workaround for the 782773 Cortex-A9 (all r0,
-	  ,r2 and r3 revisions) erratum. It might cause MMU exception in case
-	  page table walk happens just after updating the existing
-	  with setting page table in L1 data cache.
+       bool "ARM errata: A data cache maintenance operation which aborts, might lead to deadlock"
+       depends on CPU_V7
+       help
+	 This option enables the workaround for the 775420 Cortex-A9 (r2p2,
+	 r2p6,r2p8,r2p10,r3p0) erratum. In case a date cache maintenance
+	 operation aborts with MMU exception, it might cause the processor
+	 to deadlock. This workaround puts DSB before executing ISB if
+	 an abort may occur on cache maintenance.
 
 endmenu
 
@@ -1620,7 +1611,7 @@ config LOCAL_TIMERS
 	bool "Use local timer interrupts"
 	depends on SMP
 	default y
-	select HAVE_ARM_TWD if (!ARCH_MSM_SCORPIONMP && !EXYNOS4_MCT)
+	select HAVE_ARM_TWD if (!ARCH_MSM_SCORPIONMP && !EXYNOS4_MCT && !ARCH_MT6589)
 	help
 	  Enable support for local timers on SMP platforms, rather then the
 	  legacy IPI broadcast method.  Local timers allows the system
@@ -2143,6 +2134,7 @@ source "drivers/cpufreq/Kconfig"
 config CPU_FREQ_IMX
 	tristate "CPUfreq driver for i.MX CPUs"
 	depends on ARCH_MXC && CPU_FREQ
+	select CPU_FREQ_TABLE
 	help
 	  This enables the CPUfreq driver for i.MX CPUs.
 
@@ -2336,4 +2328,5 @@ source "crypto/Kconfig"
 source "lib/Kconfig"
 
 source "../mediatek/kernel/Kconfig"
+
 

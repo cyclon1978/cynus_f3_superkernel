@@ -315,6 +315,7 @@
 */
 #include "CFG_Wifi_File.h"
 #include "rlm_domain.h"
+#include "wlan_typedef.h"
 
 /*******************************************************************************
 *                              C O N S T A N T S
@@ -1015,6 +1016,15 @@ wlanSetPreferBandByNetwork (
 /*----------------------------------------------------------------------------*/
 UINT_8
 wlanGetChannelNumberByNetwork (
+    IN P_ADAPTER_T prAdapter,
+    IN ENUM_NETWORK_TYPE_INDEX_T eNetTypeIndex
+    );
+
+/*----------------------------------------------------------------------------*/
+/* get BSS Descriptor information                                             */
+/*----------------------------------------------------------------------------*/
+P_BSS_DESC_T
+wlanGetTargetBssDescByNetwork (
     IN P_ADAPTER_T prAdapter,
     IN ENUM_NETWORK_TYPE_INDEX_T eNetTypeIndex
     );

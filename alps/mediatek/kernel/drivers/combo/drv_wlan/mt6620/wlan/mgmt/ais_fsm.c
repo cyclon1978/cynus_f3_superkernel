@@ -12,6 +12,10 @@
 
 /*
 ** $Log: ais_fsm.c $
+**
+** 11 15 2012 cp.wu
+** [ALPS00382763] N820_JB:[WIFI]N820JB WLAN ±K???,«ÝÉó?¬y¥\¯Ó¤j
+** when being disconnected, set flag to stop join retrial.
  *
  * 04 20 2012 cp.wu
  * [WCXRP00000913] [MT6620 Wi-Fi] create repository of source code dedicated for MT6620 E6 ASIC
@@ -1023,6 +1027,7 @@ aisInitializeConnectionSettings (
     prConnSettings->fgIsConnByBssidIssued = FALSE;
 
     prConnSettings->fgIsConnReqIssued = FALSE;
+    prConnSettings->fgIsDisconnectedByNonRequest = FALSE;
 
     prConnSettings->ucSSIDLen = 0;
 
@@ -1820,7 +1825,8 @@ aisFsmSteps (
             prAisReq = aisFsmGetNextRequest(prAdapter);
 
             if(prAisReq == NULL || prAisReq->eReqType == AIS_REQUEST_RECONNECT) {
-                if (prConnSettings->fgIsConnReqIssued) {
+                if (prConnSettings->fgIsConnReqIssued == TRUE && 
+                        prConnSettings->fgIsDisconnectedByNonRequest == FALSE) {
 
                     prAisFsmInfo->fgTryScan = TRUE;
 
@@ -2383,12 +2389,14 @@ aisFsmRunEventAbort (
     P_AIS_FSM_INFO_T prAisFsmInfo;
     UINT_8 ucReasonOfDisconnect;
     BOOLEAN fgDelayIndication;
+    P_CONNECTION_SETTINGS_T prConnSettings;
 
     DEBUGFUNC("aisFsmRunEventAbort()");
 
     ASSERT(prAdapter);
     ASSERT(prMsgHdr);
     prAisFsmInfo = &(prAdapter->rWifiVar.rAisFsmInfo);
+    prConnSettings = &(prAdapter->rWifiVar.rConnSettings);
 
     //4 <1> Extract information of Abort Message and then free memory.
     prAisAbortMsg = (P_MSG_AIS_ABORT_T)prMsgHdr;
@@ -2407,6 +2415,14 @@ aisFsmRunEventAbort (
 #endif
 
     //4 <2> clear previous pending connection request and insert new one
+    if(ucReasonOfDisconnect == DISCONNECT_REASON_CODE_DEAUTHENTICATED 
+            || ucReasonOfDisconnect == DISCONNECT_REASON_CODE_DISASSOCIATED) {
+        prConnSettings->fgIsDisconnectedByNonRequest = TRUE;
+    }
+    else {
+        prConnSettings->fgIsDisconnectedByNonRequest = FALSE;
+    }
+
     aisFsmIsRequestPending(prAdapter, AIS_REQUEST_RECONNECT, TRUE);
     aisFsmInsertRequest(prAdapter, AIS_REQUEST_RECONNECT);
 
@@ -3148,8 +3164,10 @@ aisPostponedEventOfDisconnTimeout (
     )
 {
     P_BSS_INFO_T prAisBssInfo;
+    P_CONNECTION_SETTINGS_T prConnSettings;
 
     prAisBssInfo = &(prAdapter->rWifiVar.arBssInfo[NETWORK_TYPE_AIS_INDEX]);
+    prConnSettings = &(prAdapter->rWifiVar.rConnSettings);
 
     //4 <1> Deactivate previous AP's STA_RECORD_T in Driver if have.
     if (prAisBssInfo->prStaRecOfAP) {
@@ -3160,6 +3178,7 @@ aisPostponedEventOfDisconnTimeout (
 
     //4 <2> Remove pending connection request
     aisFsmIsRequestPending(prAdapter, AIS_REQUEST_RECONNECT, TRUE);
+    prConnSettings->fgIsDisconnectedByNonRequest = TRUE;
 
     //4 <3> Indicate Disconnected Event to Host immediately.
     aisIndicationOfMediaStateToHost(prAdapter, PARAM_MEDIA_STATE_DISCONNECTED, FALSE);

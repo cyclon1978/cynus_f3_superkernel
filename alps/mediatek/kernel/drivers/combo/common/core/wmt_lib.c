@@ -124,21 +124,9 @@ MTK_WCN_BOOL wmt_lib_hw_state_show(VOID);
 ********************************************************************************
 */
 
-
-void wmt_lib_psm_lock_aquire(void)
-{
-    osal_lock_sleepable_lock(&gDevWmt.psm_lock);
-}
-
-void wmt_lib_psm_lock_release(void)
-{
-    osal_unlock_sleepable_lock(&gDevWmt.psm_lock);
-}
-
 void DISABLE_PSM_MONITOR(void)
 {
-    //osal_lock_sleepable_lock(&gDevWmt.psm_lock);
-    wmt_lib_psm_lock_aquire();
+    osal_lock_sleepable_lock(&gDevWmt.psm_lock);
 #if CFG_WMT_PS_SUPPORT
     wmt_lib_ps_disable();
 #endif
@@ -149,10 +137,8 @@ void ENABLE_PSM_MONITOR(void)
 #if CFG_WMT_PS_SUPPORT
     wmt_lib_ps_enable();
 #endif
-    //osal_unlock_sleepable_lock(&gDevWmt.psm_lock);
-    wmt_lib_psm_lock_release();
+    osal_unlock_sleepable_lock(&gDevWmt.psm_lock);
 }
-
 
 
 INT32
@@ -1633,12 +1619,6 @@ UINT32 wmt_lib_dbg_level_set(UINT32 level)
 
 INT32 wmt_lib_notify_stp_sleep()
 {
-    INT32 iRet = 0x0;
-	
-	wmt_lib_psm_lock_aquire();
-    iRet = mtk_wcn_stp_notify_sleep_for_thermal();
-	wmt_lib_psm_lock_release();
-	
-	return iRet;
+    return mtk_wcn_stp_notify_sleep_for_thermal();
 }
 

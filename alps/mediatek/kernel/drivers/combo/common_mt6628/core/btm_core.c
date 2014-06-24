@@ -435,9 +435,6 @@ handler_done:
         if (STP_OPID_BTM_EXIT == id) 
         {
             break;
-        } else if (STP_OPID_BTM_RST == id) {
-            /* prevent multi reset case */
-            stp_btm_reset_btm_wq(stp_btm); 
         }
     }
     

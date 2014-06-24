@@ -13,6 +13,10 @@
 
 /*
 ** $Log: gl_init.c $
+**
+** 11 29 2012 cp.wu
+** [ALPS00403868] WIFI«ÝÉó?¬y?¤j
+** sync with MT6620 logic to not retry connection when being disconnected by the remote peer.
  *
  * 07 17 2012 yuche.tsai
  * NULL
@@ -2156,6 +2160,9 @@ wlanNetCreate(
 
     //4 <3.1.2> co-relate with wiphy bi-directionally
     prGlueInfo->prDevHandler->ieee80211_ptr = prWdev;
+#if CFG_TCP_IP_CHKSUM_OFFLOAD
+    prGlueInfo->prDevHandler->features = NETIF_F_HW_CSUM;
+#endif
     prWdev->netdev = prGlueInfo->prDevHandler;
 
     //4 <3.1.3> co-relate net device & prDev

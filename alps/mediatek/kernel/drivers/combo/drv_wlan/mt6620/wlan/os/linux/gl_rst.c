@@ -90,7 +90,7 @@ enum {
 /*******************************************************************************
 *                            P U B L I C   D A T A
 ********************************************************************************
-*/BOOLEAN fgIsResetting = FALSE;
+*/
 
 /*******************************************************************************
 *                           P R I V A T E   D A T A
@@ -99,7 +99,7 @@ enum {
 static UINT_32 mtk_wifi_seqnum = 0;
 static int num_bind_process = 0;
 static pid_t bind_pid[MAX_BIND_PROCESS];
-
+static BOOLEAN fgIsResetting = FALSE;
 
 /* attribute policy */
 static struct nla_policy mtk_wifi_genl_policy[MTK_WIFI_ATTR_MAX + 1] = {

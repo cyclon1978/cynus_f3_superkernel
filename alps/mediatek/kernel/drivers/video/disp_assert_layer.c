@@ -19,10 +19,7 @@
 #include <asm/cacheflush.h>
 #include <linux/module.h>
 
-#include <mach/mt_reg_base.h>
-
 #include "lcd_drv.h"
-#include "lcd_reg.h"
 #include "mtkfb_console.h"
 
 // ---------------------------------------------------------------------------
@@ -115,10 +112,6 @@ static const char low_memory_msg[] = {"Low Memory!"};
 #define DAL_LOWMEMORY_FG_COLOR (dal_lowmemory_fg_color)
 #define DAL_LOWMEMORY_BG_COLOR (dal_lowmemory_bg_color)
 #endif
-
-static PLCD_REGS const LCD_REG = (PLCD_REGS)(LCD_BASE);
-static LCD_REG_LAYER dal_layer_context;
-
 //DECLARE_MUTEX(dal_sem);
 DEFINE_SEMAPHORE(dal_sem);
 
@@ -152,17 +145,11 @@ static DAL_STATUS Show_LowMemory(void)
 			update_width = ctxt->font_width * strlen(low_memory_msg);
 			update_height = ctxt->font_height;
 			DISP_LOG_PRINT(ANDROID_LOG_INFO, "DAL", "update size:%d,%d",update_width, update_height);
-			DISP_ConfigAssertLayerMva();
-		    DAL_CHECK_LCD_RET(LCD_LayerSetFormat(ASSERT_LAYER, DAL_FORMAT));
-		    DAL_CHECK_LCD_RET(LCD_LayerSetAlphaBlending(ASSERT_LAYER, TRUE, 0x80));			
 			DAL_CHECK_LCD_RET(LCD_LayerSetOffset(ASSERT_LAYER, DAL_WIDTH - update_width,0));
 			DAL_CHECK_LCD_RET(LCD_LayerSetWindowOffset(ASSERT_LAYER, DAL_WIDTH - update_width,0));
     		DAL_CHECK_LCD_RET(LCD_LayerSetSize(ASSERT_LAYER,
                                        update_width,update_height));
-			DAL_CHECK_LCD_RET(LCD_LayerSetPitch(ASSERT_LAYER, DAL_WIDTH * DAL_BPP));
 			DAL_CHECK_LCD_RET(LCD_LayerEnable(ASSERT_LAYER, TRUE));
-
-			memcpy((void *)&dal_layer_context, (void *)&LCD_REG->LAYER[ASSERT_LAYER], sizeof(LCD_REG_LAYER));
 	}
 /*
 	if(!dal_lowMemory_shown)
@@ -198,8 +185,6 @@ DAL_STATUS DAL_Init(UINT32 layerVA, UINT32 layerPA)
                                        DAL_WIDTH,
                                        DAL_HEIGHT));
     DAL_CHECK_LCD_RET(LCD_LayerSetPitch(ASSERT_LAYER, DAL_WIDTH * DAL_BPP));
-
-	//memcpy((void *)&dal_layer_context, (void *)&LCD_REG->LAYER[ASSERT_LAYER], sizeof(LCD_REG_LAYER));
 
     return DAL_STATUS_OK;
 }
@@ -272,16 +257,8 @@ DAL_STATUS DAL_Printf(const char *fmt, ...)
 {
 	va_list args;
 	uint i;
-	LCD_REG_LAYER_CON con0, con1;
     DAL_STATUS ret = DAL_STATUS_OK;
 
-	con0 = LCD_REG->LAYER[FB_LAYER].CONTROL;
-	con1 = LCD_REG->LAYER[ASSERT_LAYER].CONTROL;
-	if ((con0.THREE_D && con1.THREE_D)){
-		printk("DAL warning: FB and AEE layer is in S3D mode, not be used for AEE\n");
-		return ret;	
-	}
-	
     if (NULL == mfc_handle) 
         return DAL_STATUS_NOT_READY;
 
@@ -306,19 +283,13 @@ DAL_STATUS DAL_Printf(const char *fmt, ...)
     }
 
     if (!dal_shown) {
-		DISP_ConfigAssertLayerMva();
-	    DAL_CHECK_LCD_RET(LCD_LayerSetFormat(ASSERT_LAYER, DAL_FORMAT));
-	    DAL_CHECK_LCD_RET(LCD_LayerSetAlphaBlending(ASSERT_LAYER, TRUE, 0x80));		
 		DAL_CHECK_LCD_RET(LCD_LayerSetWindowOffset(ASSERT_LAYER,0,0));
 		DAL_CHECK_LCD_RET(LCD_LayerSetOffset(ASSERT_LAYER, 0,0));
    		DAL_CHECK_LCD_RET(LCD_LayerSetSize(ASSERT_LAYER,
                                        DAL_WIDTH,
                                        DAL_HEIGHT));
-		DAL_CHECK_LCD_RET(LCD_LayerSetPitch(ASSERT_LAYER, DAL_WIDTH * DAL_BPP));
         DAL_CHECK_LCD_RET(LCD_LayerEnable(ASSERT_LAYER, TRUE));
         dal_shown = TRUE;
-
-		memcpy((void *)&dal_layer_context, (void *)&LCD_REG->LAYER[ASSERT_LAYER], sizeof(LCD_REG_LAYER));
     }
 
     DAL_CHECK_DISP_RET(DISP_UpdateScreen(0, 0, 
@@ -348,8 +319,6 @@ DAL_STATUS DAL_OnDispPowerOn(void)
                                        DAL_HEIGHT));
             	DAL_CHECK_LCD_RET(LCD_LayerEnable(ASSERT_LAYER, TRUE));
             	dal_shown = TRUE;
-
-				//memcpy((void *)&dal_layer_context, (void *)&LCD_REG->LAYER[ASSERT_LAYER], sizeof(LCD_REG_LAYER));
         	}
 #ifdef DAL_LOWMEMORY_ASSERT
 			dal_enable_when_resume_lowmemory = FALSE;
@@ -390,8 +359,6 @@ DAL_STATUS DAL_OnDispPowerOn(void)
    				DAL_CHECK_LCD_RET(LCD_LayerSetSize(ASSERT_LAYER,
                                        DAL_WIDTH,
                                        DAL_HEIGHT));
-
-				//memcpy((void *)&dal_layer_context, (void *)&LCD_REG->LAYER[ASSERT_LAYER], sizeof(LCD_REG_LAYER));
 			}
 		}
 		else{}
@@ -407,17 +374,8 @@ End:
 #ifdef DAL_LOWMEMORY_ASSERT
 DAL_STATUS DAL_LowMemoryOn(void)
 {
-	LCD_REG_LAYER_CON con0, con1;
 	UINT32 LOWMEMORY_FG_COLOR = MAKE_TWO_RGB565_COLOR(DAL_LOWMEMORY_FG_COLOR, DAL_LOWMEMORY_FG_COLOR);
 	UINT32 LOWMEMORY_BG_COLOR = MAKE_TWO_RGB565_COLOR(DAL_LOWMEMORY_BG_COLOR, DAL_LOWMEMORY_BG_COLOR);
-
-	con0 = LCD_REG->LAYER[FB_LAYER].CONTROL;
-	con1 = LCD_REG->LAYER[ASSERT_LAYER].CONTROL;
-	if ((con0.THREE_D && con1.THREE_D)){
-		printk("DAL_LowMemoryOn Warning: FB and AEE layer is in S3D mode, not be used for AEE\n");
-		return DAL_STATUS_OK;	
-	}
-
 	DAL_LOG("Enter DAL_LowMemoryOn()\n");
 
 	DAL_CHECK_MFC_RET(MFC_LowMemory_Printf(mfc_handle, low_memory_msg, LOWMEMORY_FG_COLOR, LOWMEMORY_BG_COLOR));
@@ -456,7 +414,6 @@ DAL_STATUS DAL_LowMemoryOff(void)
                                        DAL_WIDTH,
                                        DAL_HEIGHT));
 
-		//memcpy((void *)&dal_layer_context, (void *)&LCD_REG->LAYER[ASSERT_LAYER], sizeof(LCD_REG_LAYER));
 	}
 /*
 	DAL_CHECK_DISP_RET(DISP_UpdateScreen(0, 0, 
@@ -469,16 +426,6 @@ End:
     return DAL_STATUS_OK;
 }
 #endif
-
-DAL_STATUS DAL_RestoreAEE(void)
-{
-	DAL_LOCK();
-	memcpy((void *)&LCD_REG->LAYER[ASSERT_LAYER], (void *)&dal_layer_context, sizeof(LCD_REG_LAYER));
-	DAL_UNLOCK();
-	
-	return DAL_STATUS_OK;
-}
-
 // ##########################################################################
 //  !CONFIG_MTK_FB_SUPPORT_ASSERTION_LAYER
 // ##########################################################################
@@ -527,10 +474,6 @@ DAL_STATUS DAL_LowMemoryOff(void)
     return DAL_STATUS_OK;
 }
 #endif
-DAL_STATUS DAL_RestoreAEE(void)
-{
-	return DAL_STATUS_OK;
-}
 #endif  // CONFIG_MTK_FB_SUPPORT_ASSERTION_LAYER
 
 EXPORT_SYMBOL(DAL_SetColor);
@@ -540,4 +483,3 @@ EXPORT_SYMBOL(DAL_Clean);
 EXPORT_SYMBOL(DAL_LowMemoryOn);
 EXPORT_SYMBOL(DAL_LowMemoryOff);
 #endif
-EXPORT_SYMBOL(DAL_RestoreAEE);

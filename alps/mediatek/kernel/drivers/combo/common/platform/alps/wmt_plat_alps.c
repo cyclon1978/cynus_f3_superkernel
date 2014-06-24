@@ -918,27 +918,19 @@ INT32 wmt_plat_uart_ctrl(ENUM_PIN_STATE state)
     {
     case PIN_STA_MUX:
     case PIN_STA_INIT:
-      #ifdef GPIO_COMBO_URXD_PIN
         mt_set_gpio_mode(GPIO_COMBO_URXD_PIN, GPIO_COMBO_URXD_PIN_M_URXD);
-      #endif
-      #ifdef GPIO_COMBO_UTXD_PIN
         mt_set_gpio_mode(GPIO_COMBO_UTXD_PIN, GPIO_COMBO_UTXD_PIN_M_UTXD);
-      #endif
         WMT_DBG_FUNC("WMT-PLAT:UART init (mode_01, uart) \n");
         break;
     case PIN_STA_IN_L:
     case PIN_STA_DEINIT:
-      #ifdef GPIO_COMBO_URXD_PIN
         mt_set_gpio_mode(GPIO_COMBO_URXD_PIN, GPIO_COMBO_URXD_PIN_M_GPIO);
         mt_set_gpio_dir(GPIO_COMBO_URXD_PIN, GPIO_DIR_OUT);
         mt_set_gpio_out(GPIO_COMBO_URXD_PIN, GPIO_OUT_ZERO);
-      #endif
 
-      #ifdef GPIO_COMBO_UTXD_PIN
         mt_set_gpio_mode(GPIO_COMBO_UTXD_PIN, GPIO_COMBO_UTXD_PIN_M_GPIO);
         mt_set_gpio_dir(GPIO_COMBO_UTXD_PIN, GPIO_DIR_OUT);
         mt_set_gpio_out(GPIO_COMBO_UTXD_PIN, GPIO_OUT_ZERO);
-      #endif
         WMT_DBG_FUNC("WMT-PLAT:UART deinit (out 0) \n");
         break;
 
