@@ -4,4 +4,4 @@ export SUBARCH=arm
 export CROSS_COMPILE=arm-linux-androideabi-
 
 ./makeMtk -t s7511 mrproper k
-
+./makeMtk -t s7511 c k
