@@ -123,13 +123,11 @@ static P_OSAL_OP _stp_psm_get_op (
     osal_lock_unsleepable_lock(&(stp_psm->wq_spinlock));    
     /* acquire lock success */
     RB_GET(pOpQ, pOp);
-
-    if(pOpQ == &stp_psm->rActiveOpQ)
+	if((pOpQ == &stp_psm->rActiveOpQ) && (NULL != pOp))
     {
-        //stp_psm->current_active_op = pOp;//*(pOp);
         stp_psm->last_active_opId = pOp->op.opId;
         STP_PSM_INFO_FUNC("last_active_opId(%d)\n", stp_psm->last_active_opId);
-    }
+    } 
     osal_unlock_unsleepable_lock(&(stp_psm->wq_spinlock));
     
     if (!pOp) 
@@ -1617,6 +1615,12 @@ int stp_psm_disable_by_tx_rx_density(MTKSTP_PSM_T *stp_psm, int dir){
 #endif
 
 /*external function for WMT module to do sleep/wakeup*/
+
+INT32 stp_psm_set_state(MTKSTP_PSM_T *stp_psm, MTKSTP_PSM_STATE_T state)
+{
+    return _stp_psm_set_state(stp_psm, state);
+}
+
 
 INT32  stp_psm_thread_lock_aquire(MTKSTP_PSM_T *stp_psm)
 {

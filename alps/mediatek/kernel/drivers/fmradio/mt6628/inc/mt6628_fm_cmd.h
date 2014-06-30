@@ -37,7 +37,6 @@ fm_s32 mt6628_patch_download(fm_u8 *buf, fm_s32 buf_size, fm_u8 seg_num, fm_u8 s
 fm_s32 mt6628_coeff_download(fm_u8 *buf, fm_s32 buf_size, fm_u8 seg_num, fm_u8 seg_id, const fm_u8 *src, fm_s32 seg_len);
 fm_s32 mt6628_hwcoeff_download(fm_u8 *buf, fm_s32 buf_size, fm_u8 seg_num, fm_u8 seg_id, const fm_u8 *src, fm_s32 seg_len);
 fm_s32 mt6628_rom_download(fm_u8 *buf, fm_s32 buf_size, fm_u8 seg_num, fm_u8 seg_id, const fm_u8 *src, fm_s32 seg_len);
-fm_s32 mt6628_full_cqi_req(fm_u8 *buf, fm_s32 buf_size, fm_u16 *freq, fm_s32 cnt, fm_s32 type);
 
 /*
  * fm_get_channel_space - get the spcace of gived channel

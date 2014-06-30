@@ -1,3 +1,9 @@
+TOOLCHAIN=$(pwd)/../../toolchain/arm-cortex_a9-linux-gnueabihf-linaro_4.9.1-2014.05/bin
+
+export PATH=$TOOLCHAIN:$PATH
+export ARCH=arm
+export CROSS_COMPILE=arm-eabi-
+
 rm ./boot.img-kernel.img
 rm ./system/lib/modules/*.ko
 cp ../kernel/out/kernel_s7511.bin ./boot.img-kernel.img
@@ -5,6 +11,10 @@ cp ../kernel/out/mediatek/platform/mt6577/kernel/drivers/m4u/m4u.ko ./system/lib
 cp ../kernel/out/drivers/staging/zram/zram.ko ./system/lib/modules/zram.ko
 # cp ../kernel/out/lib/lzo/lzo_compress.ko ./system/lib/modules/lzo_compress.ko
 # cp ../kernel/out/lib/lzo/lzo_decompress.ko ./system/lib/modules/lzo_decompress.ko
+
+# strip modules
+echo "**** Patching all built modules (.ko) in /build_result/modules/ ****"
+find ./system/lib/modules/ -type f -name '*.ko' | xargs -n 1 $TOOLCHAIN/arm-eabi-strip --strip-unneeded
 
 # fix permissions
 chmod 755 ./boot.img-ramdisk/ -R

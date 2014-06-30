@@ -178,6 +178,7 @@ MTK_WCN_BOOL mtk_wcn_stp_psm_dbg_level(UINT32 dbglevel);
 INT32 stp_psm_sleep_for_thermal(MTKSTP_PSM_T *stp_psm);
 INT32  stp_psm_thread_lock_aquire(MTKSTP_PSM_T *stp_psm);
 INT32  stp_psm_thread_lock_release(MTKSTP_PSM_T *stp_psm);
+INT32 stp_psm_set_state(MTKSTP_PSM_T *stp_psm, MTKSTP_PSM_STATE_T state);
 /*******************************************************************************
 *                              F U N C T I O N S
 ********************************************************************************

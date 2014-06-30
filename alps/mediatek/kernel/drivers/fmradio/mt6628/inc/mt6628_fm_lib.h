@@ -80,19 +80,5 @@ struct adapt_fm_cqi {
     fm_s32 reserve;
 };
 
-struct mt6628_full_cqi {
-    fm_u16 ch;
-    fm_u16 rssi;
-    fm_u16 pamd;
-    fm_u16 pr;
-    fm_u16 fpamd;
-    fm_u16 mr;
-    fm_u16 atdc;
-    fm_u16 prx;
-    fm_u16 atdev;
-    fm_u16 smg; // soft-mute gain
-    fm_u16 drssi; // delta rssi
-};
-
 
 #endif

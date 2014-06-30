@@ -283,6 +283,9 @@ INT32 wmt_lib_sdio_ctrl(UINT32 on);
 extern VOID DISABLE_PSM_MONITOR(void);
 extern VOID ENABLE_PSM_MONITOR(void);
 extern INT32 wmt_lib_notify_stp_sleep(void);
+extern void wmt_lib_psm_lock_release(void);
+extern void wmt_lib_psm_lock_aquire(void);
+
 /*******************************************************************************
 *                              F U N C T I O N S
 ********************************************************************************

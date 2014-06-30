@@ -1298,6 +1298,7 @@ typedef INT32 (*STP_PSM_CB)(INT32);
 
     if (SLEEP == pWmtOp->au4OpData[0]) {
         WMT_INFO_FUNC("**** Send sleep command\n");
+		mtk_wcn_stp_set_psm_state(ACT_INACT);
         //(*kal_stp_flush_rx)(WMT_TASK_INDX);
         ret = wmt_core_tx(&WMT_SLEEP_CMD[0], sizeof(WMT_SLEEP_CMD), &u4_result, 0);
         if (ret || (u4_result != sizeof(WMT_SLEEP_CMD))) {

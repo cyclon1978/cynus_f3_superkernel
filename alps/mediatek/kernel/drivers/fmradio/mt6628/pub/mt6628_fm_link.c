@@ -322,14 +322,6 @@ fm_s32 fm_event_parser(fm_s32(*rds_parser)(struct rds_rx_t*, fm_s32))
 
                 break;
 
-            case FM_SOFT_MUTE_TUNE_OPCODE:
-
-                if (length >= 2) {
-                    fm_memcpy(link_event->result.cqi, &rx_buf[i], (length > FM_CQI_BUF_SIZE) ? FM_CQI_BUF_SIZE : length);
-                    FM_EVENT_SEND(link_event->ln_event, FLAG_SM_TUNE);
-                }
-                break;
-                
             case FM_SEEK_OPCODE:
 
                 if ((i + 1) < RX_BUF_SIZE) {

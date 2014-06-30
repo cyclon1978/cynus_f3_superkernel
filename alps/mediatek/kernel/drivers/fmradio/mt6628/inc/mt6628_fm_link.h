@@ -46,7 +46,6 @@
 #define EN_TIMEOUT              (3)
 #define RST_TIMEOUT             (3)
 #define TUNE_TIMEOUT            (3)
-#define SM_TUNE_TIMEOUT         (6)
 #define SEEK_TIMEOUT            (15)
 #define SCAN_TIMEOUT            (15) //usualy scan will cost 10 seconds 
 #define RDS_RX_EN_TIMEOUT       (3)

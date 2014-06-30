@@ -124,7 +124,7 @@ static P_OSAL_OP _stp_psm_get_op (
     /* acquire lock success */
     RB_GET(pOpQ, pOp);
 
-    if(pOpQ == &stp_psm->rActiveOpQ)
+    if((pOpQ == &stp_psm->rActiveOpQ) && (NULL != pOp))
     {
         //stp_psm->current_active_op = pOp;//*(pOp);
         stp_psm->last_active_opId = pOp->op.opId;
@@ -1068,7 +1068,7 @@ static inline INT32 _stp_psm_notify_stp(MTKSTP_PSM_T *stp_psm, const MTKSTP_PSM_
             }
             else 
             {
-                if(action < STP_PSM_MAX_STATE)
+                if(action < STP_PSM_MAX_ACTION)
                 {
                     STP_PSM_ERR_FUNC("Action = %s, ACT_INACT state, the case should not happens\n\r", g_psm_action[action]);
                     STP_PSM_ERR_FUNC("state = %d, flag = %d\n", stp_psm->work_state, stp_psm->flag);
@@ -1110,7 +1110,7 @@ static inline INT32 _stp_psm_notify_stp(MTKSTP_PSM_T *stp_psm, const MTKSTP_PSM_
             }
             else 
             {
-                if(action < STP_PSM_MAX_STATE)
+                if(action < STP_PSM_MAX_ACTION)
                 {
                     STP_PSM_ERR_FUNC("Action = %s, INACT_ACT state, the case should not happens\n\r", g_psm_action[action]);
                     STP_PSM_ERR_FUNC("state = %d, flag = %d\n", stp_psm->work_state, stp_psm->flag);
@@ -1125,7 +1125,7 @@ static inline INT32 _stp_psm_notify_stp(MTKSTP_PSM_T *stp_psm, const MTKSTP_PSM_
 
         case INACT:
 
-            if(action < STP_PSM_MAX_STATE)
+            if(action < STP_PSM_MAX_ACTION)
             {
                 STP_PSM_ERR_FUNC("Action = %s, INACT state, the case should not happens\n\r", g_psm_action[action]);
                 STP_PSM_ERR_FUNC("state = %d, flag = %d\n", stp_psm->work_state, stp_psm->flag);
@@ -1141,7 +1141,7 @@ static inline INT32 _stp_psm_notify_stp(MTKSTP_PSM_T *stp_psm, const MTKSTP_PSM_
             
         case ACT:
 
-            if(action < STP_PSM_MAX_STATE)
+            if(action < STP_PSM_MAX_ACTION)
             {
                 STP_PSM_ERR_FUNC("Action = %s, ACT state, the case should not happens\n\r", g_psm_action[action]);
                 STP_PSM_ERR_FUNC("state = %d, flag = %d\n", stp_psm->work_state, stp_psm->flag);
@@ -1158,7 +1158,7 @@ static inline INT32 _stp_psm_notify_stp(MTKSTP_PSM_T *stp_psm, const MTKSTP_PSM_
         default:
             
             /*invalid*/
-            if(action < STP_PSM_MAX_STATE) 
+            if(action < STP_PSM_MAX_ACTION) 
             {
                 STP_PSM_ERR_FUNC("Action = %s, Invalid state, the case should not happens\n\r", g_psm_action[action]);
                 STP_PSM_ERR_FUNC("state = %d, flag = %d\n", stp_psm->work_state, stp_psm->flag);
@@ -1192,6 +1192,11 @@ static inline INT32 _stp_psm_notify_wmt(MTKSTP_PSM_T *stp_psm, const MTKSTP_PSM_
             
             if(action == SLEEP)
             {
+                if (stp_psm->flag & STP_PSM_WMT_EVENT_DISABLE_MONITOR) {
+                    STP_PSM_ERR_FUNC("psm monitor disabled, can't do sleep op\n");
+                    return STP_PSM_OPERATION_FAIL;
+                }
+                
                 _stp_psm_set_state(stp_psm, ACT_INACT);
 
                 _stp_psm_release_data(stp_psm);
@@ -1615,6 +1620,11 @@ int stp_psm_disable_by_tx_rx_density(MTKSTP_PSM_T *stp_psm, int dir){
 #endif
 
 /*external function for WMT module to do sleep/wakeup*/
+INT32 stp_psm_set_state(MTKSTP_PSM_T *stp_psm, MTKSTP_PSM_STATE_T state)
+{
+    return _stp_psm_set_state(stp_psm, state);
+}
+
 
 INT32  stp_psm_thread_lock_aquire(MTKSTP_PSM_T *stp_psm)
 {

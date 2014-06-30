@@ -655,62 +655,6 @@ fm_s32 mt6628_tune(fm_u8 *buf, fm_s32 buf_size, fm_u16 freq, fm_u16 chan_para)
 
 
 /*
- * mt6628_full_cqi_req - execute request cqi info action,
- * @buf - target buf
- * @buf_size - buffer size
- * @freq - 7600 ~ 10800, freq array
- * @cnt - channel count
- * @type - request type, 1: a single channel; 2: multi channel; 3:multi channel with 100Khz step; 4: multi channel with 50Khz step
- * 
- * return package size
- */
-fm_s32 mt6628_full_cqi_req(fm_u8 *buf, fm_s32 buf_size, fm_u16 *freq, fm_s32 cnt, fm_s32 type)
-{
-    fm_s32 pkt_size = 0;
-
-    if (buf_size < TX_BUF_SIZE) {
-        return (-1);
-    }
-
-    buf[0] = FM_TASK_COMMAND_PKT_TYPE;
-    buf[1] = FM_SOFT_MUTE_TUNE_OPCODE;
-    pkt_size = 4;
-
-    switch (type) {
-        case 1:
-            buf[pkt_size] = 0x0001;
-            pkt_size++;
-            buf[pkt_size] = (fm_u8)((*freq) & 0x00FF);
-            pkt_size++;
-            buf[pkt_size] = (fm_u8)((*freq >> 8) & 0x00FF);
-            pkt_size++;
-            break;
-        case 2:
-            buf[pkt_size] = 0x0002;
-            pkt_size++;
-            break;
-        case 3:
-            buf[pkt_size] = 0x0003;
-            pkt_size++;
-            break;
-        case 4:
-            buf[pkt_size] = 0x0004;
-            pkt_size++;
-            break;
-        default:
-            buf[pkt_size] = (fm_u16)type;
-            pkt_size++;
-            break;
-    }
-
-    buf[2] = (fm_u8)((pkt_size - 4) & 0x00FF);
-    buf[3] = (fm_u8)(((pkt_size - 4) >> 8) & 0x00FF);
-
-    return pkt_size;
-}
-
-
-/*
  * mt6628_seek - execute seek action,
  * @buf - target buf
  * @buf_size - buffer size
