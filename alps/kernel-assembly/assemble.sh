@@ -4,6 +4,10 @@ export PATH=$TOOLCHAIN:$PATH
 export ARCH=arm
 export CROSS_COMPILE=arm-eabi-
 
+mkdir system
+mkdir system/lib
+mkdir system/lib/modules
+
 # cleanup old files
 rm ./boot.img-kernel.img
 rm ./system/lib/modules/*.ko
