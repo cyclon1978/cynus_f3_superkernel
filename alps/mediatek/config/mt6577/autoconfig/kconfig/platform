@@ -43,8 +43,14 @@ CONFIG_KERNEL_LZMA=y
 # CONFIG_KERNEL_LZO is not set
 # CONFIG_KERNEL_LZ4 is not set
 CONFIG_DEFAULT_HOSTNAME="(none)"
-# CONFIG_SWAP is not set
-# may not be required
+
+###################################
+# ZRAM block
+
+# required for zram
+CONFIG_SWAP=y
+
+# may not be required? may do something nice... ZCACHE IS BROKEN!
 # CONFIG_ZCACHE is not set
 
 # required for ZRAM
@@ -68,6 +74,9 @@ CONFIG_ZRAM_LZ4=y
 # recommended by google for zram effectiveness
 CONFIG_CGROUP_MEM_RES_CTLR=y
 CONFIG_CGROUP_MEM_RES_CTLR_SWAP=y
+
+# ZRAM block
+###################################
 
 # CONFIG_SYSVIPC is not set
 # CONFIG_POSIX_MQUEUE is not set
@@ -454,11 +463,16 @@ CONFIG_VIRT_TO_BUS=y
 # disable ksm feature, its not good
 CONFIG_KSM=y
 # KSM OPTION - choose UKSM or LEGACY
-CONFIG_UKSM=y
-# CONFIG_KSM_LEGACY is not set
+# CONFIG_UKSM is not set
+CONFIG_KSM_LEGACY=y
+# disable for uksm; only helpful for ksm!
+CONFIG_KSM_CHECK_PAGE=y
 
 CONFIG_DEFAULT_MMAP_MIN_ADDR=4096
-# CONFIG_CLEANCACHE is not set
+
+# may do something nice...
+CONFIG_CLEANCACHE=y
+
 CONFIG_DYNAMIC_PAGE_WRITEBACK=y
 CONFIG_FORCE_MAX_ZONEORDER=11
 CONFIG_ALIGNMENT_TRAP=y
