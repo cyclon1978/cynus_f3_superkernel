@@ -34,7 +34,13 @@ CUSTOM_HAL_SUB_IMGSENSOR=hi704_yuv
 CUSTOM_HAL_SUB_LENS=dummy_lens
 CUSTOM_HAL_MSENSORLIB=bmm050
 CUSTOM_HAL_SENSORS=sensor
-CUSTOM_KERNEL_ACCELEROMETER=bma250_auto ###-wedonthavethem-and they break ap3220/camera! bma222E_auto kxtj2_auto
+
+# working:
+# wrong, but working: 
+## CUSTOM_KERNEL_ACCELEROMETER=bma250_auto ###-wedonthavethem-and they break ap3220/camera! bma222E_auto kxtj2_auto
+# also working...
+CUSTOM_KERNEL_ACCELEROMETER=bma250_auto bma222E_auto kxtj2_auto 
+
 CUSTOM_KERNEL_ALSPS=ap3220
 #CUSTOM_KERNEL_ALSPS=ap3220#msg2133_alsps
 CUSTOM_KERNEL_BATTERY=battery
@@ -58,7 +64,13 @@ CUSTOM_KERNEL_LEDS=mt65xx
 CUSTOM_KERNEL_MAGNETOMETER=bmm050
 CUSTOM_KERNEL_RTC=rtc
 CUSTOM_KERNEL_SOUND=amp_6329pmic_spk
-CUSTOM_KERNEL_TOUCHPANEL=msg2133a ft6x06 # looks like we have an ft6x06, but no difference with or without driver?
+
+# working:
+# not in original f3 kernel: 
+##CUSTOM_KERNEL_TOUCHPANEL=msg2133a ft6x06 # looks like we have an ft6x06, but no difference with or without driver?
+# also working: (like original f3 kernel)
+CUSTOM_KERNEL_TOUCHPANEL=msg2133a 
+
 CUSTOM_KERNEL_USB=mt6577
 CUSTOM_KERNEL_VIBRATOR=vibrator
 #CUSTOM_LK_LCM=hx8379a_dsi_vdo hx8379a_dsi_vdo_bidirectional otm8018b_dsi_vdo 
@@ -349,7 +361,7 @@ MTK_TETHERINGIPV6_SUPPORT=yes
 MTK_THEMEMANAGER_APP=no
 MTK_TODOS_APP=no
 MTK_TTY_SUPPORT=yes
-MTK_TVOUT_SUPPORT=no
+MTK_TVOUT_SUPPORT=yes
 #longwei modify
 MTK_USB_AUDIO_SUPPORT=yes
 MTK_USES_HD_VIDEO=yes

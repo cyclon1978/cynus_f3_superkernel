@@ -26,6 +26,6 @@ find ./system/lib/modules/ -type f -name '*.ko' | xargs -n 1 $TOOLCHAIN/arm-eabi
 # fix permissions
 chmod 755 ./boot.img-ramdisk/ -R
 
-~/projects/tools/mtk-tools/repack-MT65xx.pl -boot boot.img-kernel.img boot.img-ramdisk boot.img
+~/projects/tools/mtk-tools/repack-MT65xx.pl -boot boot.img-kernel.img boot.img-ramdisk.v41 boot.img
 cp ./f3_testkernel_template.zip ./f3_testkernel.zip
 zip -u -r ./f3_testkernel.zip ./boot.img system
