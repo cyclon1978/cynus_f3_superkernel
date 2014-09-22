@@ -24,8 +24,8 @@ echo "**** Patching all built modules (.ko) in /build_result/modules/ ****"
 find ./system/lib/modules/ -type f -name '*.ko' | xargs -n 1 $TOOLCHAIN/arm-eabi-strip --strip-unneeded
 
 # fix permissions
-chmod 755 ./boot.img-ramdisk/ -R
+chmod 755 ./boot.img-ramdisk.v41/ -R
 
-~/projects/tools/mtk-tools/repack-MT65xx.pl -boot boot.img-kernel.img boot.img-ramdisk.v41 boot.img
+../../../../tools/mtk-tools/repack-MT65xx.pl -boot boot.img-kernel.img boot.img-ramdisk.v41 boot.img
 cp ./f3_testkernel_template.zip ./f3_testkernel.zip
 zip -u -r ./f3_testkernel.zip ./boot.img system
