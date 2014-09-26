@@ -37,7 +37,18 @@ obj-$(CONFIG_GENERIC_PCI_IOMAP) += pci_iomap.o
 obj-$(CONFIG_HAS_IOMEM) += iomap_copy.o devres.o
 obj-$(CONFIG_CHECK_SIGNATURE) += check_signature.o
 obj-$(CONFIG_DEBUG_LOCKING_API_SELFTESTS) += locking-selftest.o
-obj-$(CONFIG_DEBUG_SPINLOCK) += spinlock_debug.o
+
+# added fake spinlock to support modules compiled with CONFIG_DEBUG_SPINLOCK
+ifeq ($(CONFIG_DEBUG_SPINLOCK_FAKE),y)
+obj-y += spinlock_debug_fake.o
+endif
+
+ifneq ($(CONFIG_DEBUG_SPINLOCK_FAKE),y)
+  ifeq ($(CONFIG_DEBUG_SPINLOCK),y)
+    obj-y += spinlock_debug.o
+  endif
+endif
+
 lib-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
 lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
 

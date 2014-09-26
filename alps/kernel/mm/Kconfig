@@ -175,13 +175,14 @@ config PAGEFLAGS_EXTENDED
 # ARM's adjust_pte (unused if VIPT) depends on mm-wide page_table_lock.
 # PA-RISC 7xxx's spinlock_t would enlarge struct page from 32 to 44 bytes.
 # DEBUG_SPINLOCK and DEBUG_LOCK_ALLOC spinlock_t also enlarge struct page.
-#
+# 
+# added code to fix for fake spinlock feature
 config SPLIT_PTLOCK_CPUS
 	int
 	default "999999" if ARM && !CPU_CACHE_VIPT
 	default "999999" if PARISC && !PA20
 	default "999999" if DEBUG_SPINLOCK || DEBUG_LOCK_ALLOC
-	default "4"
+	default "999999"
 
 #
 # support for memory compaction
