@@ -30,7 +30,7 @@ CONFIG_HAVE_IRQ_WORK=y
 CONFIG_EXPERIMENTAL=y
 CONFIG_INIT_ENV_ARG_LIMIT=32
 CONFIG_CROSS_COMPILE=""
-CONFIG_LOCALVERSION="-cynus_f3_lean_kernel-6.14"
+CONFIG_LOCALVERSION="-cynus_f3_lean_kernel-6.15"
 # CONFIG_LOCALVERSION_AUTO is not set
 CONFIG_HAVE_KERNEL_GZIP=y
 CONFIG_HAVE_KERNEL_LZMA=y
@@ -48,10 +48,10 @@ CONFIG_DEFAULT_HOSTNAME="(none)"
 # ZRAM block
 
 # required for zram
-### 1-DISABLED-BAD
 #-LEAN: disable swap
-# @since 6.4
-CONFIG_SWAP=n
+# @since 6.4  : disabled
+# @since 6.15 : enabled / feature for cache-swap
+CONFIG_SWAP=y
 
 # ZCACHE+CLEANCACHE OR ZRAM
 # CONFIG_ZCACHE is not set
